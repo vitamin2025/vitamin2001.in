@@ -1,4 +1,4 @@
-import { Client, Account, Databases } from "appwrite";
+import { Client, Account, Databases, Storage } from "appwrite";
 
 // Safe Appwrite client initializer that avoids build-time errors when env vars are missing.
 // During Next.js prerender/export, undefined endpoint can cause appwrite's setEndpoint to
@@ -23,5 +23,6 @@ function createSafeClient() {
 const client = createSafeClient();
 const account = new Account(client);
 const databases = new Databases(client);
+const storage = new Storage(client);
 
-export { client, account, databases };
+export { client, account, databases, storage };

@@ -1,3 +1,6 @@
+import './app.css';
+import Footer from '@/components/Footer';
+
 export const metadata = {
   title: "Appwrite + Next.js",
   description: "Appwrite starter for Next.js",
@@ -16,8 +19,9 @@ export default function RootLayout({ children }) {
         />
         <link rel="icon" type="image/svg+xml" href="/appwrite.svg" />
       </head>
-      <body className={"bg-[#FAFAFB] font-[Inter] text-sm text-[#56565C]"}>
+      <body className={"bg-[#FAFAFB] font-[Inter] text-sm text-[#56565C] min-h-screen flex flex-col"}>
         {children}
+        <Footer />
       </body>
     </html>
   );
