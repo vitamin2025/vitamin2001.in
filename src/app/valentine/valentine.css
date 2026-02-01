@@ -1,0 +1,233 @@
+.valentine-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%);
+  position: relative;
+  overflow: hidden;
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+
+.background-hearts {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.floating-heart {
+  position: absolute;
+  bottom: -50px;
+  animation: float-up linear infinite;
+}
+
+@keyframes float-up {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.3;
+  }
+  90% {
+    opacity: 0.3;
+  }
+  100% {
+    transform: translateY(-100vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+.card-container {
+  z-index: 10;
+  width: 50%;
+  padding: 20px;
+}
+
+@media (max-width: 768px) {
+  .card-container {
+    width: 100%;
+    padding: 15px;
+  }
+}
+
+/* Thank You Page Styles */
+.thankyou-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fad0c4 100%);
+  position: relative;
+  overflow: hidden;
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+
+.thankyou-hearts {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.thankyou-heart {
+  position: absolute;
+  animation: pulse-float 4s ease-in-out infinite;
+}
+
+@keyframes pulse-float {
+  0%,
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.2) translateY(-20px);
+    opacity: 0.8;
+  }
+}
+
+.thankyou-content {
+  z-index: 10;
+  text-align: center;
+  padding: 40px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 30px;
+  box-shadow:
+    0 30px 60px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+  max-width: 500px;
+  animation: content-appear 1s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  position: relative;
+  overflow: hidden;
+}
+
+.thankyou-video-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -2;
+  border-radius: 30px;
+}
+
+.thankyou-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.75);
+  z-index: -1;
+  border-radius: 30px;
+}
+
+@keyframes content-appear {
+  0% {
+    opacity: 0;
+    transform: scale(0.5) translateY(50px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.thankyou-emoji {
+  font-size: 80px;
+  display: block;
+  margin-bottom: 20px;
+  animation: heartbeat 1.5s ease-in-out infinite;
+}
+
+@keyframes heartbeat {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  14% {
+    transform: scale(1.3);
+  }
+  28% {
+    transform: scale(1);
+  }
+  42% {
+    transform: scale(1.3);
+  }
+  70% {
+    transform: scale(1);
+  }
+}
+
+.thankyou-title {
+  font-size: 48px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #e91e63, #ff5722, #e91e63);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 20px;
+  animation: gradient-shift 3s ease infinite;
+}
+
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.thankyou-message {
+  font-size: 20px;
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 30px;
+}
+
+.thankyou-signature {
+  font-size: 24px;
+  color: #e91e63;
+  font-weight: 600;
+  animation: gentle-bounce 2s ease-in-out infinite;
+}
+
+@keyframes gentle-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.couple-emoji {
+  font-size: 50px;
+  display: block;
+  margin-top: 20px;
+  animation: sway 3s ease-in-out infinite;
+}
+
+@keyframes sway {
+  0%,
+  100% {
+    transform: rotate(-5deg);
+  }
+  50% {
+    transform: rotate(5deg);
+  }
+}
