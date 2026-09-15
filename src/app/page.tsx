@@ -143,8 +143,15 @@ export default function MainPage() {
       </div>
 
       {/* Footer */}
-      <footer className="mt-16 text-center text-xs text-slate-400 border-t pt-6">
-        vitamin2001.in &bull; Multi-Tenant Next.js Architecture with TanStack Query & Subdomain Rewriting
+      <footer className="mt-16 text-center text-xs text-slate-400 border-t pt-6 space-y-2">
+        <div>
+          <Link href="/admin" className="text-slate-500 hover:text-slate-700">
+            Platform admin
+          </Link>
+        </div>
+        <p>
+          vitamin2001.in &bull; Multi-Tenant Next.js Architecture with TanStack Query & Subdomain Rewriting
+        </p>
       </footer>
     </main>
   );
