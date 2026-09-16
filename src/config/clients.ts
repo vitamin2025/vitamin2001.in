@@ -15,6 +15,27 @@ export function getClientConfig(subdomain: string): ClientConfig | undefined {
   return CLIENT_REGISTRY[normalized];
 }
 
+export function titleCaseSlug(slug: string): string {
+  const titled = slug
+    .split(/[-_]+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+  return titled || slug;
+}
+
+export function getClientConfigOrFallback(subdomain: string): ClientConfig {
+  const normalized = subdomain.toLowerCase().trim();
+  return (
+    getClientConfig(normalized) ?? {
+      name: titleCaseSlug(normalized),
+      subdomain: normalized,
+      features: [],
+      adminEnabled: true,
+    }
+  );
+}
+
 export function getAllClients(): ClientConfig[] {
   return Object.values(CLIENT_REGISTRY);
 }

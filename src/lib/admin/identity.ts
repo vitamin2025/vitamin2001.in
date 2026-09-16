@@ -62,7 +62,7 @@ function parseActor(raw: unknown, at: string): Actor | null {
   };
 }
 
-async function fetchActor(): Promise<Actor | null> {
+export async function fetchActor(): Promise<Actor | null> {
   try {
     return await authRequest({
       method: "GET",

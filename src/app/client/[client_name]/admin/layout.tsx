@@ -1,20 +1,27 @@
-import React from "react";
-import { AdminSidebar } from "@/components/layout/admin-sidebar";
-import { AdminHeader } from "@/components/layout/admin-header";
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { Toaster } from "@/components/admin";
+import { SYSTEM_ORG_SLUG } from "@/lib/admin";
 import type { ClientLayoutProps } from "@/types/client";
 
-export default async function AdminRootLayout({
+export const metadata: Metadata = {
+  title: "Client Admin",
+  robots: { index: false, follow: false },
+};
+
+export default async function ClientAdminLayout({
   children,
+  params,
 }: ClientLayoutProps) {
+  const { client_name } = await params;
+  if (client_name.toLowerCase() === SYSTEM_ORG_SLUG) {
+    notFound();
+  }
+
   return (
-    <div className="flex min-h-screen bg-slate-100/70">
-      <AdminSidebar />
-      <div className="flex-1 flex flex-col min-w-0">
-        <AdminHeader />
-        <main className="flex-1 p-6 sm:p-8 max-w-7xl w-full mx-auto">
-          {children}
-        </main>
-      </div>
+    <div className="min-h-screen bg-slate-50">
+      {children}
+      <Toaster />
     </div>
   );
 }

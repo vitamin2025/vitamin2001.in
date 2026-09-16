@@ -35,7 +35,13 @@ export type {
   QueryCodec,
 } from "./paging";
 
-export { ActorProvider, useActor, useAdminAccess, useAuthCommands } from "./identity";
+export {
+  ActorProvider,
+  useActor,
+  useAdminAccess,
+  useAuthCommands,
+  fetchActor,
+} from "./identity";
 export type { AdminAccess } from "./identity";
 
 export {
