@@ -50,3 +50,6 @@ export type { ClientBilling, ClientInvoices, ClientInvoice } from "./billing";
 
 export { clientAuditQuery, useClientAuditLog } from "./audit";
 export type { ClientAuditQuery } from "./audit";
+
+export * from "./linktree";
+

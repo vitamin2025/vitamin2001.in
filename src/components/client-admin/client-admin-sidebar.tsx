@@ -6,6 +6,7 @@ import {
   ClipboardList,
   CreditCard,
   LayoutDashboard,
+  Link2,
   LogOut,
   Settings,
   Sparkles,
@@ -28,6 +29,7 @@ const icons: Record<FeatureIcon, typeof LayoutDashboard> = {
   billing: CreditCard,
   audit: ClipboardList,
   spark: Sparkles,
+  linktree: Link2,
 };
 
 export function ClientAdminSidebar() {

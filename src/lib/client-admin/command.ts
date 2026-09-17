@@ -13,6 +13,7 @@ import { CLIENT_ADMIN_ROOT, clientAdminKeys } from "./keys";
 export type ClientAdminEffect =
   | { on: "members.changed"; actorId: UserId; slug: string }
   | { on: "settings.changed"; actorId: UserId; slug: string }
+  | { on: "linktree.changed"; actorId: UserId; slug: string }
   | { on: "signedOut" };
 
 export type CommandState =
@@ -39,6 +40,17 @@ async function applyEffect(
     await Promise.all([
       queryClient.invalidateQueries({
         queryKey: clientAdminKeys.members(effect.actorId, effect.slug),
+      }),
+      queryClient.invalidateQueries({
+        queryKey: clientAdminKeys.context(effect.actorId, effect.slug),
+      }),
+    ]);
+    return;
+  }
+  if (effect.on === "linktree.changed") {
+    await Promise.all([
+      queryClient.invalidateQueries({
+        queryKey: [...CLIENT_ADMIN_ROOT, effect.actorId, effect.slug, "linktree"],
       }),
       queryClient.invalidateQueries({
         queryKey: clientAdminKeys.context(effect.actorId, effect.slug),

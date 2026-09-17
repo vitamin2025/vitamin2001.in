@@ -13,7 +13,8 @@ export type FeatureIcon =
   | "settings"
   | "billing"
   | "audit"
-  | "spark";
+  | "spark"
+  | "linktree";
 
 export type ClientAdminNavItem = {
   readonly key: string;
@@ -53,6 +54,7 @@ export function isImplementedFeature(key: string): boolean {
   return (
     key === "dashboard" ||
     key === "team" ||
+    key === "linktree" ||
     isOptionalClientFeature(key)
   );
 }
@@ -63,6 +65,7 @@ export function implementedFeatureHref(slug: string, key: string): string | null
   if (key === "settings") return clientAdminRoutes.settings(slug);
   if (key === "billing") return clientAdminRoutes.billing(slug);
   if (key === "audit") return clientAdminRoutes.audit(slug);
+  if (key === "linktree") return clientAdminRoutes.linktree(slug);
   return null;
 }
 
@@ -123,6 +126,16 @@ export function clientAdminNavItems(
         label: "Audit",
         href: clientAdminRoutes.audit(slug),
         icon: "audit",
+        kind: "page",
+      });
+      continue;
+    }
+    if (key === "linktree") {
+      items.push({
+        key,
+        label: "Links (Linktree)",
+        href: clientAdminRoutes.linktree(slug),
+        icon: "linktree",
         kind: "page",
       });
       continue;

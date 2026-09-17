@@ -7,6 +7,13 @@ export const clientAdminRoutes = {
   audit: (slug: string) => `/client/${encodeURIComponent(slug)}/admin/audit`,
   feature: (slug: string, feature: string) =>
     `/client/${encodeURIComponent(slug)}/admin/features/${encodeURIComponent(feature)}`,
+  linktree: (slug: string) =>
+    `/client/${encodeURIComponent(slug)}/admin/features/linktree`,
+  linktreeSettings: (slug: string) =>
+    `/client/${encodeURIComponent(slug)}/admin/features/linktree/settings`,
+  linktreeAnalytics: (slug: string) =>
+    `/client/${encodeURIComponent(slug)}/admin/features/linktree/analytics`,
+  publicLinks: (slug: string) => `/public/${encodeURIComponent(slug)}/links`,
   publicSite: (slug: string) => `/client/${encodeURIComponent(slug)}`,
 };
 

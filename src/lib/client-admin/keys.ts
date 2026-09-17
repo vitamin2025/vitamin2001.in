@@ -15,4 +15,12 @@ export const clientAdminKeys = {
     [...CLIENT_ADMIN_ROOT, actorId, slug, "invoices"] as const,
   audit: (actorId: UserId, slug: string, query: unknown) =>
     [...CLIENT_ADMIN_ROOT, actorId, slug, "audit", query] as const,
+  linktree: (actorId: UserId, slug: string) =>
+    [...CLIENT_ADMIN_ROOT, actorId, slug, "linktree"] as const,
+  linktreePage: (actorId: UserId, slug: string) =>
+    [...CLIENT_ADMIN_ROOT, actorId, slug, "linktree", "page"] as const,
+  linktreeAnalytics: (actorId: UserId, slug: string) =>
+    [...CLIENT_ADMIN_ROOT, actorId, slug, "linktree", "analytics"] as const,
+  linktreeLinkAnalytics: (actorId: UserId, slug: string, linkId: string) =>
+    [...CLIENT_ADMIN_ROOT, actorId, slug, "linktree", "link-analytics", linkId] as const,
 };
