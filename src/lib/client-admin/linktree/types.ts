@@ -49,6 +49,7 @@ export interface LinktreePage {
   maxLinks: number;
   isPublished: boolean;
   theme?: LinktreeTheme | null;
+  custom?: Record<string, unknown> | null;
   links: LinktreeLink[];
   socialLinks: LinktreeSocialLink[];
   createdAt: string;
@@ -65,6 +66,7 @@ export interface CreatePageInput {
   ogDescription?: string;
   ogImage?: string;
   theme?: LinktreeTheme;
+  custom?: Record<string, unknown>;
 }
 
 export interface UpdatePageInput {
@@ -77,6 +79,7 @@ export interface UpdatePageInput {
   ogDescription?: string | null;
   ogImage?: string | null;
   theme?: LinktreeTheme | null;
+  custom?: Record<string, unknown> | null;
 }
 
 export interface CreateLinkInput {
