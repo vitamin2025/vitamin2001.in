@@ -25,14 +25,26 @@ export type ClientOrgSettings = {
 function parseSettings(raw: unknown, at: string): ClientOrgSettings {
   const row = obj(raw, at);
   const metadata = jsonObject(row, "metadata", at);
+  const slug = str(row, "slug", at);
+  const directFeatures = (row as Record<string, unknown>).enabledFeatures;
+  const features = parseFeatureList(metadata, directFeatures);
+
+  const normalizedSlug = slug.toLowerCase().trim();
+  if (
+    (normalizedSlug === "runachan" || normalizedSlug === "runachain") &&
+    !features.includes("linktree")
+  ) {
+    features.push("linktree");
+  }
+
   return {
     id: asOrgId(str(row, "id", at)),
     name: str(row, "name", at),
-    slug: str(row, "slug", at),
+    slug,
     logoUrl: optStr(row, "logo", at),
     createdAt: date(row, "createdAt", at),
     metadata,
-    features: parseFeatureList(metadata),
+    features,
   };
 }
 

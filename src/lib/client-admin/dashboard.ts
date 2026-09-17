@@ -63,15 +63,21 @@ export function parseClientDashboard(raw: unknown, at: string): ClientDashboard 
   const organization = obj(envelope.organization, `${at}.organization`);
   const stats = obj(envelope.stats, `${at}.stats`);
   const metadata = jsonObject(organization, "metadata", `${at}.organization`);
+  const slug = str(organization, "slug", `${at}.organization`);
+
+  // Direct enabledFeatures on organization, or inside metadata
+  const directFeatures = (organization as Record<string, unknown>).enabledFeatures;
+  const features = parseFeatureList(metadata, directFeatures);
+
   return {
     organization: {
       id: asOrgId(str(organization, "id", `${at}.organization`)),
       name: str(organization, "name", `${at}.organization`),
-      slug: str(organization, "slug", `${at}.organization`),
+      slug,
       logoUrl: optStr(organization, "logo", `${at}.organization`),
       createdAt: date(organization, "createdAt", `${at}.organization`),
       metadata,
-      features: parseFeatureList(metadata),
+      features,
     },
     stats: {
       totalMembers: num(stats, "totalMembers", `${at}.stats`),

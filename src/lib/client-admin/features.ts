@@ -33,15 +33,44 @@ export function humanizeFeatureKey(key: string): string {
   return titled || key;
 }
 
-export function parseFeatureList(meta: Record<string, unknown>): string[] {
-  if (!Object.prototype.hasOwnProperty.call(meta, "features")) {
-    return [...DEFAULT_CLIENT_FEATURES];
+export function parseFeatureList(
+  meta: Record<string, unknown>,
+  directFeatures?: unknown,
+): string[] {
+  const list: string[] = [];
+
+  if (Array.isArray(directFeatures)) {
+    for (const item of directFeatures) {
+      if (typeof item === "string" && item.trim() !== "") {
+        list.push(item.trim());
+      }
+    }
   }
-  const raw = meta.features;
-  if (!Array.isArray(raw)) return [...DEFAULT_CLIENT_FEATURES];
-  return raw.filter(
-    (item): item is string => typeof item === "string" && item.trim() !== "",
-  );
+
+  if (Array.isArray(meta.enabledFeatures)) {
+    for (const item of meta.enabledFeatures) {
+      if (typeof item === "string" && item.trim() !== "" && !list.includes(item.trim())) {
+        list.push(item.trim());
+      }
+    }
+  }
+
+  if (Array.isArray(meta.features)) {
+    for (const item of meta.features) {
+      if (typeof item === "string" && item.trim() !== "" && !list.includes(item.trim())) {
+        list.push(item.trim());
+      }
+    }
+  }
+
+  // Ensure default features are present
+  for (const def of DEFAULT_CLIENT_FEATURES) {
+    if (!list.includes(def)) {
+      list.push(def);
+    }
+  }
+
+  return list;
 }
 
 export function isOptionalClientFeature(
