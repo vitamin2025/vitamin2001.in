@@ -133,7 +133,7 @@ export function clientAdminNavItems(
     if (key === "linktree") {
       items.push({
         key,
-        label: "Links (Linktree)",
+        label: "Links Profile",
         href: clientAdminRoutes.linktree(slug),
         icon: "linktree",
         kind: "page",

@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { LinktreeHeader } from "@/components/client-admin/linktree";
+import { LinktreeFeatureGate, LinktreeHeader } from "@/components/client-admin/linktree";
 
 export default function LinktreeLayout({
   children,
@@ -7,9 +7,11 @@ export default function LinktreeLayout({
   children: ReactNode;
 }) {
   return (
-    <div className="space-y-6">
-      <LinktreeHeader />
-      <div>{children}</div>
-    </div>
+    <LinktreeFeatureGate>
+      <div className="space-y-6">
+        <LinktreeHeader />
+        <div>{children}</div>
+      </div>
+    </LinktreeFeatureGate>
   );
 }
