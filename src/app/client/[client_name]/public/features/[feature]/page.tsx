@@ -8,7 +8,7 @@ export default async function PublicFeaturePage({
   const { client_name, feature } = await params;
 
   if (feature.toLowerCase() === "linktree" || feature.toLowerCase() === "links") {
-    redirect(`/public/${encodeURIComponent(client_name)}/links`);
+    redirect("/public/links");
   }
 
   return (

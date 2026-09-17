@@ -1,7 +1,7 @@
 export default function PublicLinktreeLoading() {
   return (
     <main className="flex min-h-screen w-full flex-col items-center justify-center bg-slate-900 px-4 py-12">
-      <div className="mx-auto flex w-full max-w-[480px] flex-col items-center space-y-8 animate-pulse">
+      <div className="mx-auto flex w-full max-w-120 flex-col items-center space-y-8 animate-pulse">
         {/* Avatar skeleton */}
         <div className="h-24 w-24 rounded-full bg-slate-800" />
 

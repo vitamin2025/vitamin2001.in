@@ -13,7 +13,7 @@ export const clientAdminRoutes = {
     `/client/${encodeURIComponent(slug)}/admin/features/linktree/settings`,
   linktreeAnalytics: (slug: string) =>
     `/client/${encodeURIComponent(slug)}/admin/features/linktree/analytics`,
-  publicLinks: (slug: string) => `/public/${encodeURIComponent(slug)}/links`,
+  publicLinks: (_slug: string) => `/public/links`,
   publicSite: (slug: string) => `/client/${encodeURIComponent(slug)}`,
 };
 

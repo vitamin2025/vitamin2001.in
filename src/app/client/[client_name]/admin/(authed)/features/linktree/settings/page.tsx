@@ -153,7 +153,7 @@ function SettingsForm({ page }: { page: LinktreePage | null }) {
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1 font-mono text-indigo-600 hover:underline"
                 >
-                  /public/{slug}/links
+                  /public/links
                   <ExternalLink className="h-3 w-3" />
                 </a>
               </div>
