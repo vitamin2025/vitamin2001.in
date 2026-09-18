@@ -1,3 +1,4 @@
+import { createElement } from "react";
 import type { Metadata } from "next";
 import { getClientConfigOrFallback } from "@/config/clients";
 import { fetchPublicPage } from "@/lib/client-admin/linktree/public";
@@ -51,7 +52,7 @@ export default async function PublicLinktreePage({ params }: PublicLinktreeProps
     customTheme && page?.slug ? getCustomLinkPage(page.slug) : undefined;
 
   if (page && CustomPage) {
-    return <CustomPage data={page} />;
+    return createElement(CustomPage, { data: page });
   }
 
   return <DefaultLinkPage data={page} client={client} clientName={client_name} />;

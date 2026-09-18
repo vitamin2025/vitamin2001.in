@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { MediaUploadField } from "@/components/storage/media-upload-field";
 import { useLinktreeLinkCommands, type LinktreeLink } from "@/lib/client-admin";
 
 interface LinkDialogProps {
@@ -115,18 +116,16 @@ function LinkForm({
         )}
       </div>
 
-      <div className="space-y-1.5">
-        <Label htmlFor="link-thumb" className="text-xs font-semibold text-slate-700">
-          Thumbnail / Icon Image URL (optional)
-        </Label>
-        <Input
-          id="link-thumb"
-          type="url"
-          value={thumbnailUrl}
-          onChange={(e) => setThumbnailUrl(e.target.value)}
-          placeholder="https://example.com/icon.png"
-        />
-      </div>
+      <MediaUploadField
+        label="Thumbnail / Icon Image (optional)"
+        description="Optional icon displayed next to the link"
+        value={thumbnailUrl}
+        onChange={setThumbnailUrl}
+        category="avatars"
+        aspectRatio="square"
+        compact
+        placeholder="https://example.com/icon.png"
+      />
 
       <div className="space-y-1.5">
         <Label htmlFor="link-tags" className="text-xs font-semibold text-slate-700">

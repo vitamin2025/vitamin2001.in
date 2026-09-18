@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
 import { ColorPicker } from "@/components/ui/color-picker";
 import { LoadingSpinner } from "@/components/common/loading-spinner";
+import { MediaUploadField } from "@/components/storage/media-upload-field";
 import {
   clientAdminRoutes,
   useClientDashboard,
@@ -117,33 +118,15 @@ function SettingsForm({ page }: { page: LinktreePage | null }) {
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="page-avatar" className="text-xs font-semibold text-slate-700">
-                  Avatar / Logo Image URL
-                </Label>
-                <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-slate-100">
-                    {avatarUrl ? (
-                      /* eslint-disable-next-line @next/next/no-img-element */
-                      <img
-                        src={avatarUrl}
-                        alt="Avatar preview"
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <User className="h-6 w-6 text-slate-400" />
-                    )}
-                  </div>
-                  <Input
-                    id="page-avatar"
-                    type="url"
-                    value={avatarUrl}
-                    onChange={(e) => setAvatarUrl(e.target.value)}
-                    placeholder="https://example.com/logo.png"
-                    className="flex-1"
-                  />
-                </div>
-              </div>
+              <MediaUploadField
+                label="Avatar / Logo Image"
+                description="Square profile image shown on your bio link"
+                value={avatarUrl}
+                onChange={setAvatarUrl}
+                category="avatars"
+                aspectRatio="square"
+                clientId={slug}
+              />
 
               <div className="rounded-lg bg-slate-50 p-3 text-xs text-slate-600">
                 <span className="font-semibold text-slate-800">Public Address: </span>
@@ -276,18 +259,16 @@ function SettingsForm({ page }: { page: LinktreePage | null }) {
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="og-image" className="text-xs font-semibold text-slate-700">
-                  OpenGraph Share Banner URL
-                </Label>
-                <Input
-                  id="og-image"
-                  type="url"
-                  value={ogImage}
-                  onChange={(e) => setOgImage(e.target.value)}
-                  placeholder="https://example.com/banner-1200x630.png"
-                />
-              </div>
+              <MediaUploadField
+                label="OpenGraph Share Banner"
+                description="Recommended size: 1200x630 (aspect ratio 1.91:1)"
+                value={ogImage}
+                onChange={setOgImage}
+                category="banners"
+                aspectRatio="banner"
+                clientId={slug}
+                placeholder="https://example.com/banner-1200x630.png"
+              />
             </CardContent>
           </Card>
         </div>

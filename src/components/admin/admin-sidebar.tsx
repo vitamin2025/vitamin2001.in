@@ -10,6 +10,7 @@ import {
   Shield,
   Users,
   MonitorSmartphone,
+  HardDrive,
 } from "lucide-react";
 import { adminRoutes, useActor, useAuthCommands } from "@/lib/admin";
 import { cn } from "@/lib/utils";
@@ -18,6 +19,7 @@ const nav = [
   { label: "Overview", href: adminRoutes.overview(), icon: LayoutDashboard },
   { label: "Users", href: adminRoutes.users(), icon: Users },
   { label: "Organizations", href: adminRoutes.orgs(), icon: Building2 },
+  { label: "Storage", href: adminRoutes.storage(), icon: HardDrive },
   { label: "Sessions", href: adminRoutes.sessions(), icon: MonitorSmartphone },
   { label: "Audit", href: adminRoutes.audit(), icon: ClipboardList },
 ];

@@ -17,6 +17,14 @@ export const adminRoutes = {
   org: (id: string) => `/admin/organizations/${encodeURIComponent(id)}`,
   sessions: () => "/admin/sessions",
   audit: () => "/admin/audit",
+  storage: (query?: { clientId?: string; category?: string; page?: number }) => {
+    const params = new URLSearchParams();
+    if (query?.clientId) params.set("clientId", query.clientId);
+    if (query?.category) params.set("category", query.category);
+    if (query?.page && query.page > 1) params.set("page", String(query.page));
+    const qs = params.toString();
+    return qs ? `/admin/storage?${qs}` : "/admin/storage";
+  },
   entityTrail: (entity: { type: string; id: string }) =>
     `/admin/audit/${encodeURIComponent(entity.type)}/${encodeURIComponent(entity.id)}`,
 };

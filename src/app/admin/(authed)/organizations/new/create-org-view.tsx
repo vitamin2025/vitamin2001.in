@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AdminPageHeader, Field } from "@/components/admin";
+import { MediaUploadField } from "@/components/storage/media-upload-field";
 import { adminRoutes, useOrgCommands } from "@/lib/admin";
 
 export function CreateOrgView() {
@@ -44,12 +45,14 @@ export function CreateOrgView() {
             required
           />
         </Field>
-        <Field label="Logo URL" error={create.fieldErrors?.logo?.[0]}>
-          <Input
-            value={logoUrl}
-            onChange={(event) => setLogoUrl(event.target.value)}
-          />
-        </Field>
+        <MediaUploadField
+          label="Organization Logo"
+          value={logoUrl}
+          onChange={setLogoUrl}
+          category="avatars"
+          error={create.fieldErrors?.logo?.[0]}
+          clientId={slug || undefined}
+        />
         {create.fieldErrors?._form?.[0] ? (
           <p className="text-sm text-red-600">{create.fieldErrors._form[0]}</p>
         ) : null}

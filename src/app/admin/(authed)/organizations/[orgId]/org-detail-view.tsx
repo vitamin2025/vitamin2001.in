@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,7 @@ import {
   RelativeTime,
 } from "@/components/admin";
 import { Skeleton } from "@/components/ui/skeleton";
+import { MediaUploadField } from "@/components/storage/media-upload-field";
 import {
   adminRoutes,
   asOrgId,
@@ -21,11 +23,56 @@ import {
   useOrgMembers,
 } from "@/lib/admin";
 
+function OrgEditForm({ o }: { o: NonNullable<ReturnType<typeof useOrg>["item"]> }) {
+  const { update } = useOrgCommands();
+  const [logoUrl, setLogoUrl] = useState(o.logoUrl ?? "");
+
+  return (
+    <form
+      className="max-w-lg space-y-4 rounded-xl border border-slate-200 bg-white p-6"
+      onSubmit={(event) => {
+        event.preventDefault();
+        if (!o.can.rename.allowed) return;
+        const form = new FormData(event.currentTarget);
+        void update.run({
+          permit: o.can.rename.permit,
+          orgId: o.id,
+          name: String(form.get("name") ?? ""),
+          slug: o.can.changeSlug.allowed
+            ? String(form.get("slug") ?? "")
+            : undefined,
+          logoUrl: logoUrl || undefined,
+        });
+      }}
+    >
+      <Field label="Name">
+        <Input name="name" defaultValue={o.name} />
+      </Field>
+      <Field label="Slug">
+        <Input
+          name="slug"
+          defaultValue={o.slug}
+          disabled={!o.can.changeSlug.allowed}
+          title={!o.can.changeSlug.allowed ? o.can.changeSlug.reason : undefined}
+        />
+      </Field>
+      <MediaUploadField
+        label="Organization Logo"
+        value={logoUrl}
+        onChange={setLogoUrl}
+        category="avatars"
+        clientId={o.slug}
+      />
+      <Button type="submit">Save</Button>
+    </form>
+  );
+}
+
 export function OrgDetailView({ orgId }: { orgId: string }) {
   const id = asOrgId(orgId);
   const org = useOrg(id);
   const members = useOrgMembers(id, org.item?.slug ?? "");
-  const { update, setActive } = useOrgCommands();
+  const { setActive } = useOrgCommands();
 
   if (org.status === "failed" && org.error) {
     return <ErrorState error={org.error} onRetry={org.reload} />;
@@ -48,40 +95,7 @@ export function OrgDetailView({ orgId }: { orgId: string }) {
         )}
       </div>
 
-      <form
-        key={o.id}
-        className="max-w-lg space-y-4 rounded-xl border border-slate-200 bg-white p-6"
-        onSubmit={(event) => {
-          event.preventDefault();
-          if (!o.can.rename.allowed) return;
-          const form = new FormData(event.currentTarget);
-          void update.run({
-            permit: o.can.rename.permit,
-            orgId: o.id,
-            name: String(form.get("name") ?? ""),
-            slug: o.can.changeSlug.allowed
-              ? String(form.get("slug") ?? "")
-              : undefined,
-            logoUrl: String(form.get("logo") ?? "") || undefined,
-          });
-        }}
-      >
-        <Field label="Name">
-          <Input name="name" defaultValue={o.name} />
-        </Field>
-        <Field label="Slug">
-          <Input
-            name="slug"
-            defaultValue={o.slug}
-            disabled={!o.can.changeSlug.allowed}
-            title={!o.can.changeSlug.allowed ? o.can.changeSlug.reason : undefined}
-          />
-        </Field>
-        <Field label="Logo URL">
-          <Input name="logo" defaultValue={o.logoUrl ?? ""} />
-        </Field>
-        <Button type="submit">Save</Button>
-      </form>
+      <OrgEditForm o={o} />
 
       {o.active ? (
         <DangerButton
