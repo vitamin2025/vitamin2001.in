@@ -12,6 +12,17 @@ const nextConfig = {
   turbopack: {
     root: dir,
   },
+  // Limit CPU & worker process count to prevent exhausting Hostinger's process limit (120 max)
+  experimental: {
+    cpus: 1,
+    workerThreads: false,
+  },
+  // Prevent spawning background image optimization worker threads
+  images: {
+    unoptimized: true,
+  },
+  // Disable heavy source-map generation to reduce worker memory and child tasks
+  productionBrowserSourceMaps: false,
 };
 
 export default nextConfig;

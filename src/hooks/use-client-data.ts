@@ -20,7 +20,6 @@ export function useClientStats(clientName: string) {
     queryKey: ["client", clientName, "stats"],
     queryFn: () => fetchClientStats(clientName),
     enabled: Boolean(clientName),
-    refetchInterval: 30000, // Background poll every 30s
   });
 }
 
