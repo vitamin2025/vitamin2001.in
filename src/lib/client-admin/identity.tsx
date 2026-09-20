@@ -226,13 +226,15 @@ export function useClientSession(): ClientSessionAccess {
 
 export function useClientAdminAuthCommands(): {
   readonly signIn: Command<{ email: string; password: string }, void>;
+  readonly signUp: Command<{ name: string; email: string; password: string }, void>;
   readonly signOut: Command<void, void>;
 } {
   const queryClient = useQueryClient();
-  const { signIn, signOut } = useAuthCommands();
+  const { signIn, signUp, signOut } = useAuthCommands();
 
   return {
     signIn,
+    signUp,
     signOut: {
       run: async () => {
         await signOut.run();

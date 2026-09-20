@@ -7,7 +7,7 @@ import { toAdminError, type AdminError } from "./errors";
 import { adminRequest, assertSameSiteInDev, authRequest } from "./http";
 import { asOrgId, asSessionId, asUserId, type OrgId, type UserId } from "./ids";
 import { keys } from "./keys";
-import { obj, optStr, str, date } from "./read";
+import { obj, optStr, str, date, bool } from "./read";
 import { retryUnlessAuthz } from "./errors";
 import type { Actor } from "./policy";
 import { parsePlatformStats, type PlatformStats } from "./stats";
@@ -53,6 +53,7 @@ function parseActor(raw: unknown, at: string): Actor | null {
     id: asUserId(str(user, "id", `${at}.user`)),
     name: str(user, "name", `${at}.user`),
     email: str(user, "email", `${at}.user`),
+    emailVerified: bool(user, "emailVerified", `${at}.user`),
     imageUrl: optStr(user, "image", `${at}.user`),
     sessionId: asSessionId(str(session, "id", `${at}.session`)),
     sessionExpiresAt: date(session, "expiresAt", `${at}.session`),
@@ -125,6 +126,7 @@ export function useAdminAccess(): AdminAccess {
 
 export function useAuthCommands(): {
   readonly signIn: Command<{ email: string; password: string }, void>;
+  readonly signUp: Command<{ name: string; email: string; password: string }, void>;
   readonly signOut: Command<void, void>;
 } {
   const queryClient = useQueryClient();
@@ -136,6 +138,21 @@ export function useAuthCommands(): {
         method: "POST",
         path: "/sign-in/email",
         body: { email: input.email, password: input.password },
+        parse: () => undefined,
+      });
+      await queryClient.invalidateQueries({ queryKey: keys.session() });
+    },
+    effect: () => ({ on: "session.changed" }),
+  });
+
+  const signUp = useCommand<{ name: string; email: string; password: string }, void>({
+    actorId: null,
+    fields: ["name", "email", "password"],
+    send: async (input) => {
+      await authRequest({
+        method: "POST",
+        path: "/sign-up/email",
+        body: { name: input.name, email: input.email, password: input.password },
         parse: () => undefined,
       });
       await queryClient.invalidateQueries({ queryKey: keys.session() });
@@ -159,7 +176,7 @@ export function useAuthCommands(): {
     effect: () => ({ on: "signedOut" }),
   });
 
-  return { signIn, signOut };
+  return { signIn, signUp, signOut };
 }
 
 export type { Actor, OrgId, UserId };

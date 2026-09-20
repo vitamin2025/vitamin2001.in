@@ -29,6 +29,7 @@ export type Actor = {
   readonly id: UserId;
   readonly name: string;
   readonly email: string;
+  readonly emailVerified: boolean;
   readonly imageUrl: string | null;
   readonly sessionId: SessionId;
   readonly sessionExpiresAt: Date;

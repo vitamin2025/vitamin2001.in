@@ -93,6 +93,14 @@ export function LoginView() {
                 required
               />
             </Field>
+            <div className="flex justify-end">
+              <a
+                href="/forgot-password"
+                className="text-xs text-slate-500 hover:text-slate-800 underline underline-offset-2"
+              >
+                Forgot password?
+              </a>
+            </div>
             {formError ? <p className="text-sm text-red-600">{formError}</p> : null}
             {signIn.state.status === "failed" && !formError ? (
               <p className="text-sm text-red-600">{signIn.state.error.message}</p>
