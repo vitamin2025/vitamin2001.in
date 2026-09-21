@@ -30,6 +30,7 @@ import {
 } from "@/components/client-admin/linktree";
 import {
   useClientDashboard,
+  useLinktreeAnalytics,
   useLinktreeLinkCommands,
   useLinktreePage,
   useLinktreePageCommands,
@@ -43,6 +44,7 @@ export default function LinktreeAdminPage() {
   const slug = dashboard.organization.slug;
 
   const { item: page, status, reload } = useLinktreePage();
+  const { item: overview } = useLinktreeAnalytics();
   const { createPage } = useLinktreePageCommands();
   const { reorderLinks } = useLinktreeLinkCommands();
   const { reorderSocialLinks } = useLinktreeSocialLinkCommands();
@@ -112,6 +114,9 @@ export default function LinktreeAdminPage() {
   const socialLinks = page?.socialLinks
     ? [...page.socialLinks].sort((a, b) => a.position - b.position)
     : [];
+  const clicksByLinkId = new Map(
+    (overview?.topLinks ?? []).map((item) => [item.id, item.clicks] as const),
+  );
 
   // Drag handlers
   const handleLinkDragEnd = (event: DragEndEvent) => {
@@ -232,6 +237,7 @@ export default function LinktreeAdminPage() {
                     <LinkCard
                       key={link.id}
                       link={link}
+                      clicks={clicksByLinkId.get(link.id) ?? 0}
                       onEdit={(l) => {
                         setEditingLink(l);
                         setLinkDialogOpen(true);

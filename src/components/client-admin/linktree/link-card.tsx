@@ -26,6 +26,7 @@ import { cn } from "@/lib/utils";
 
 interface LinkCardProps {
   link: LinktreeLink;
+  clicks?: number;
   onEdit: (link: LinktreeLink) => void;
   onQr: (link: LinktreeLink) => void;
   onMoveUp?: () => void;
@@ -36,6 +37,7 @@ interface LinkCardProps {
 
 export function LinkCard({
   link,
+  clicks = 0,
   onEdit,
   onQr,
   onMoveUp,
@@ -210,7 +212,7 @@ export function LinkCard({
         {/* Click counter */}
         <div className="flex items-center gap-1.5 rounded-md bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-700">
           <MousePointerClick className="h-3.5 w-3.5 text-slate-400" />
-          <span>{link.totalClicks ?? 0}</span>
+          <span>{clicks}</span>
           <span className="hidden sm:inline text-slate-400">clicks</span>
         </div>
 

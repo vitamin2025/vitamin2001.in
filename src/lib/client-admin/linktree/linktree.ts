@@ -316,23 +316,27 @@ export function useLinktreeLinkAnalytics(linkId: string | null): DetailResult<Li
     queryFn: async () => {
       if (!linkId) return null;
       const [overview, countries, timeSeries, topReferrers, clicks] = await Promise.all([
-        linktreeRequest<{ totalClicks: number }>({
+        linktreeRequest<{ totalClicks?: number; clicks?: number }>({
           method: "GET",
           path: `/analytics/links/${encodeURIComponent(linkId)}`,
-        }).catch(() => ({ totalClicks: 0 })),
+          query: { period: "total" },
+        }).catch(() => ({ totalClicks: 0, clicks: 0 })),
         linktreeRequest<Array<{ country: string; clicks: number }>>({
           method: "GET",
           path: `/analytics/links/${encodeURIComponent(linkId)}/countries`,
         }).catch(() => []),
-        linktreeRequest<Array<{ date: string; clicks: number }>>({
+        linktreeRequest<Array<{ date?: string; interval?: string; clicks: number }>>({
           method: "GET",
           path: `/analytics/links/${encodeURIComponent(linkId)}/timeseries`,
         }).catch(() => []),
-        linktreeRequest<Array<{ referrer: string; clicks: number }>>({
+        linktreeRequest<Array<{ referrer?: string; value?: string; clicks: number }>>({
           method: "GET",
-          path: `/analytics/links/${encodeURIComponent(linkId)}/top?column=referrer`,
+          path: `/analytics/links/${encodeURIComponent(linkId)}/top`,
+          query: { column: "referrer" },
         }).catch(() => []),
-        linktreeRequest<Array<{ clickedAt: string; country?: string; browser?: string; os?: string }>>({
+        linktreeRequest<
+          Array<{ clickedAt?: string; createdAt?: string; country?: string; browser?: string; os?: string }>
+        >({
           method: "GET",
           path: `/analytics/links/${encodeURIComponent(linkId)}/clicks`,
         }).catch(() => []),
@@ -340,11 +344,22 @@ export function useLinktreeLinkAnalytics(linkId: string | null): DetailResult<Li
 
       return {
         linkId,
-        totalClicks: overview.totalClicks,
+        totalClicks: overview.totalClicks ?? overview.clicks ?? 0,
         countries,
-        timeSeries,
-        topReferrers,
-        recentClicks: clicks,
+        timeSeries: timeSeries.map((point) => ({
+          date: point.date || point.interval || "",
+          clicks: point.clicks,
+        })),
+        topReferrers: topReferrers.map((item) => ({
+          referrer: item.referrer || item.value || "",
+          clicks: item.clicks,
+        })),
+        recentClicks: clicks.map((click) => ({
+          clickedAt: click.clickedAt || click.createdAt || "",
+          country: click.country,
+          browser: click.browser,
+          os: click.os,
+        })),
       };
     },
     enabled: Boolean(linkId),

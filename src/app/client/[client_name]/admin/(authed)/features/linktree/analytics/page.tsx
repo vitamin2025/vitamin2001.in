@@ -134,33 +134,17 @@ export default function LinktreeAnalyticsPage() {
   }
 
   const links = page?.links ?? [];
-  const totalClicks = overview?.totalClicks ?? links.reduce((sum, l) => sum + (l.totalClicks ?? 0), 0);
+  const clicksByLinkId = new Map(
+    (overview?.topLinks ?? []).map((item) => [item.id, item.clicks] as const),
+  );
+  const totalClicks = overview?.totalClicks ?? 0;
   const totalLinks = links.length;
 
   const topLinksData = overview?.topLinks?.length
     ? overview.topLinks
-    : links
-        .slice()
-        .sort((a, b) => (b.totalClicks ?? 0) - (a.totalClicks ?? 0))
-        .slice(0, 5)
-        .map((l) => ({
-          id: l.id,
-          title: l.title,
-          clicks: l.totalClicks ?? 0,
-        }));
+    : [];
 
-  // Dummy fallback trend data if time-series is empty
-  const timeSeriesData = overview?.clicksOverTime?.length
-    ? overview.clicksOverTime
-    : [
-        { date: "Mon", clicks: Math.round(totalClicks * 0.1) },
-        { date: "Tue", clicks: Math.round(totalClicks * 0.15) },
-        { date: "Wed", clicks: Math.round(totalClicks * 0.2) },
-        { date: "Thu", clicks: Math.round(totalClicks * 0.25) },
-        { date: "Fri", clicks: Math.round(totalClicks * 0.3) },
-        { date: "Sat", clicks: Math.round(totalClicks * 0.18) },
-        { date: "Sun", clicks: Math.round(totalClicks * 0.22) },
-      ];
+  const timeSeriesData = overview?.clicksOverTime ?? [];
 
   return (
     <div className="space-y-6">
@@ -211,36 +195,42 @@ export default function LinktreeAnalyticsPage() {
           </CardHeader>
           <CardContent>
             <div className="h-64 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={timeSeriesData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="clickGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.4} />
-                      <stop offset="95%" stopColor="#4f46e5" stopOpacity={0.0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                  <XAxis dataKey="date" tickLine={false} stroke="#94a3b8" fontSize={12} />
-                  <YAxis tickLine={false} stroke="#94a3b8" fontSize={12} allowDecimals={false} />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "#1e293b",
-                      borderRadius: "8px",
-                      color: "#fff",
-                      border: "none",
-                      fontSize: "12px",
-                    }}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="clicks"
-                    stroke="#4f46e5"
-                    strokeWidth={2}
-                    fillOpacity={1}
-                    fill="url(#clickGradient)"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
+              {timeSeriesData.length === 0 ? (
+                <div className="flex h-full items-center justify-center text-xs text-slate-400">
+                  No click trend data yet
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={timeSeriesData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="clickGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.4} />
+                        <stop offset="95%" stopColor="#4f46e5" stopOpacity={0.0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                    <XAxis dataKey="date" tickLine={false} stroke="#94a3b8" fontSize={12} />
+                    <YAxis tickLine={false} stroke="#94a3b8" fontSize={12} allowDecimals={false} />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "#1e293b",
+                        borderRadius: "8px",
+                        color: "#fff",
+                        border: "none",
+                        fontSize: "12px",
+                      }}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="clicks"
+                      stroke="#4f46e5"
+                      strokeWidth={2}
+                      fillOpacity={1}
+                      fill="url(#clickGradient)"
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -338,7 +328,7 @@ export default function LinktreeAnalyticsPage() {
                       <div className="flex items-center gap-4">
                         <div className="flex items-center gap-1.5 font-mono text-sm font-semibold text-slate-800">
                           <MousePointerClick className="h-4 w-4 text-indigo-500" />
-                          <span>{link.totalClicks ?? 0}</span>
+                          <span>{clicksByLinkId.get(link.id) ?? 0}</span>
                         </div>
                       </div>
                     </div>
