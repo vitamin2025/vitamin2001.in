@@ -59,8 +59,8 @@ export function ClientAdminLoginView({
       <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center gap-4 p-6">
         <h1 className="text-xl font-semibold">Access denied</h1>
         <p className="text-sm text-slate-600">
-          Signed in as {access.actor.email}, but this account is not an owner of{" "}
-          {displayName}.
+          Signed in as {access.actor.email}, but this account is not an owner or
+          admin of {displayName}.
         </p>
         <p className="text-sm text-slate-500">{access.reason}</p>
         <Button type="button" variant="outline" onClick={() => void signOut.run()}>

@@ -24,6 +24,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import type { OrgRole } from "@/lib/admin";
 import {
+  useClientDashboard,
   useClientMemberCommands,
   useClientMembers,
   type ClientMember,
@@ -32,6 +33,8 @@ import {
 export function MembersView() {
   const members = useClientMembers();
   const { invite, updateRole, remove } = useClientMemberCommands();
+  const actorRole = useClientDashboard().actorRole;
+  const canAssignOwner = actorRole === "owner";
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<"admin" | "member">("member");
 
@@ -115,6 +118,7 @@ export function MembersView() {
                   <MemberRow
                     key={member.memberId}
                     member={member}
+                    canAssignOwner={canAssignOwner}
                     onRoleChange={(nextRole) => {
                       if (nextRole === member.role) return;
                       void updateRole.run({
@@ -175,10 +179,12 @@ export function MembersView() {
 
 function MemberRow({
   member,
+  canAssignOwner,
   onRoleChange,
   onRemove,
 }: {
   member: ClientMember;
+  canAssignOwner: boolean;
   onRoleChange: (role: OrgRole) => void;
   onRemove: () => void;
 }) {
@@ -199,7 +205,9 @@ function MemberRow({
             onRoleChange(event.target.value as OrgRole)
           }
         >
-          <option value="owner">Owner</option>
+          {canAssignOwner || member.role === "owner" ? (
+            <option value="owner">Owner</option>
+          ) : null}
           <option value="admin">Admin</option>
           <option value="member">Member</option>
         </Select>

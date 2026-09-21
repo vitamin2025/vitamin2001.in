@@ -1,5 +1,6 @@
 import { asOrgId, type OrgId } from "@/lib/admin/ids";
 import { date, jsonObject, list, num, obj, optStr, str } from "@/lib/admin/read";
+import { parseOrgRole, type OrgRole } from "@/lib/admin/policy";
 import { parseFeatureList } from "./features";
 
 export type ClientOrgSummary = {
@@ -31,6 +32,7 @@ export type ClientDashboard = {
   readonly organization: ClientOrgSummary;
   readonly stats: ClientDashboardStats;
   readonly recentActivity: readonly ClientActivity[];
+  readonly actorRole: OrgRole;
 };
 
 function parseRoles(
@@ -89,5 +91,6 @@ export function parseClientDashboard(raw: unknown, at: string): ClientDashboard 
       `${at}.recentActivity`,
       parseActivity,
     ),
+    actorRole: parseOrgRole(str(envelope, "actorRole", at)),
   };
 }

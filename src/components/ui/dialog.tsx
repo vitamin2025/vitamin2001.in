@@ -26,7 +26,7 @@ export function Dialog({ open, onClose, title, children, footer }: DialogProps) 
       ref={ref}
       onClose={onClose}
       className={cn(
-        "w-full max-w-md rounded-xl border border-slate-200 bg-white p-0 shadow-lg backdrop:bg-slate-900/40",
+        "fixed inset-0 m-auto h-fit max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-md overflow-y-auto rounded-xl border border-slate-200 bg-white p-0 shadow-lg backdrop:bg-slate-900/40",
       )}
     >
       <div className="border-b border-slate-100 px-5 py-4">

@@ -54,8 +54,8 @@ export function ClientAdminGate({
       <div className="mx-auto flex min-h-screen max-w-lg flex-col justify-center gap-4 p-6">
         <h1 className="text-xl font-semibold text-slate-900">Access denied</h1>
         <p className="text-sm text-slate-600">
-          Signed in as {access.actor.email}, but this account is not an owner of
-          this organization.
+          Signed in as {access.actor.email}, but this account is not an owner or
+          admin of this organization.
         </p>
         <p className="text-sm text-slate-500">{access.reason}</p>
         <Button

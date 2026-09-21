@@ -72,9 +72,25 @@ function withCapabilities(
   members: readonly ParsedMember[],
   actor: ReturnType<typeof useActor>,
   slug: string,
+  actorRole: OrgRole,
 ): ClientMember[] {
   const ownerCount = members.filter((member) => member.role === "owner").length;
   return members.map((member) => {
+    if (actorRole !== "owner" && member.role === "owner") {
+      return {
+        ...member,
+        can: {
+          changeRole: {
+            allowed: false,
+            reason: "Only organization owners can change an owner's role.",
+          },
+          remove: {
+            allowed: false,
+            reason: "Only organization owners can remove an owner.",
+          },
+        },
+      };
+    }
     const lastOwner = member.role === "owner" && ownerCount <= 1;
     return {
       ...member,
@@ -102,6 +118,7 @@ export function useClientMembers(): ClientMembersResult {
   const actor = useActor();
   const dashboard = useClientDashboard();
   const slug = dashboard.organization.slug;
+  const actorRole = dashboard.actorRole;
 
   const result = useQuery({
     queryKey: clientAdminKeys.members(actor.id, slug),
@@ -126,7 +143,7 @@ export function useClientMembers(): ClientMembersResult {
 
   return {
     items: result.data
-      ? withCapabilities(result.data.members, actor, slug)
+      ? withCapabilities(result.data.members, actor, slug, actorRole)
       : [],
     invitations: result.data?.invitations ?? [],
     status: queryStatus(result),
