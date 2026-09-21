@@ -14,7 +14,7 @@ const bodyFont = M_PLUS_Rounded_1c({
   display: "swap",
 });
 
-const PROFILE_STAMPS = ["COSPLAY", "アニメ", "KUROMI CLUB", "かわいい"] as const;
+const PROFILE_STAMPS = ["COSPLAY", "アニメ", "かわいい"] as const;
 const CARD_STAMPS = ["推し", "NEW", "★", "♥"] as const;
 
 function JesterSkull({ className }: { className?: string }) {
@@ -274,10 +274,6 @@ export function RunachanLinkPage({ data }: { data: PublicLinktreeData }) {
             </div>
             <TinySkull className="absolute -bottom-2 -right-4 h-7 w-7 text-pink-300" />
           </div>
-
-          <p className="mt-6 text-[10px] font-bold uppercase tracking-[0.38em] text-pink-400/90">
-            gothic kawaii booth
-          </p>
           <div className="mt-1 flex items-center gap-2">
             <StarSparkle className="rk-twinkle h-4 w-4 text-pink-300" />
             <h1
@@ -292,7 +288,7 @@ export function RunachanLinkPage({ data }: { data: PublicLinktreeData }) {
             <MiniSparkle className="rk-twinkle-d h-4 w-4 text-fuchsia-200" />
           </div>
           <p className="mt-1 text-xs font-medium tracking-wide text-pink-200/70">
-            くろみ部 ・ cosplay ・ アニメ
+            cosplay ・ アニメ
           </p>
 
           {bio && (

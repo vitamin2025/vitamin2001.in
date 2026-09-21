@@ -5,8 +5,9 @@ import "./globals.css";
 import "@/styles/clients/runachan/theme.css";
 
 export const metadata: Metadata = {
-  title: "vitamin2001.in | Multi-Tenant Platform",
-  description: "Next.js multi-tenant platform with subdomain routing and client isolation.",
+  title: "vitamin2001.in | IT Services & Software Development",
+  description:
+    "Professional IT services, custom React/Next.js web applications, full-stack development, and SaaS solutions by Md Rushd Al Amin.",
 };
 
 export default function RootLayout({
