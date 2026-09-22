@@ -1,0 +1,171 @@
+"use client";
+
+import Link from "next/link";
+import { Sparkles, ArrowRight, Layers, LogIn, Loader2 } from "lucide-react";
+import {
+  usePublicCreatorProfile,
+  usePublicCreatorTiers,
+  useFanFeed,
+} from "@/lib/client-admin/creator";
+import { PostCard } from "./post-card";
+import { PostTeaserCard } from "./post-teaser-card";
+
+interface CreatorLandingViewProps {
+  slug: string;
+}
+
+export function CreatorLandingView({ slug }: CreatorLandingViewProps) {
+  const { data: profile, isLoading: profileLoading } = usePublicCreatorProfile(slug);
+  const { data: tiers = [], isLoading: tiersLoading } = usePublicCreatorTiers(slug);
+  const { data: feedData, isLoading: feedLoading } = useFanFeed(slug, { limit: 10 });
+
+  const creatorName = profile?.name || slug;
+
+  return (
+    <div className="min-h-screen bg-slate-50 text-slate-900 pb-20">
+      {/* Hero Banner */}
+      <div className="relative h-72 sm:h-96 w-full bg-slate-800 overflow-hidden">
+        {profile?.bannerUrl ? (
+          <img
+            src={profile.bannerUrl}
+            alt={creatorName}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-r from-indigo-900 via-slate-900 to-purple-900" />
+        )}
+        <div className="absolute inset-0 bg-black/40 backdrop-blur-2xs" />
+
+        <div className="absolute bottom-6 left-0 right-0 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center sm:items-end justify-between gap-4">
+          <div className="flex items-center gap-4 text-center sm:text-left">
+            <div className="w-20 h-20 rounded-2xl bg-indigo-600 text-white font-bold text-2xl flex items-center justify-center shadow-lg ring-4 ring-white/20">
+              {creatorName.slice(0, 1).toUpperCase()}
+            </div>
+            <div>
+              <span className="inline-flex items-center gap-1 rounded-md bg-white/20 backdrop-blur-md px-2 py-0.5 text-xs font-semibold text-white mb-1">
+                <Sparkles className="h-3 w-3" /> Official Creator Community
+              </span>
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-white">
+                {creatorName}
+              </h1>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <Link
+              href={`/client/${encodeURIComponent(slug)}/user/signup`}
+              className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-4 py-2.5 text-xs font-semibold text-white shadow-md hover:bg-indigo-500 transition-colors"
+            >
+              Follow for Free <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+            <Link
+              href={`/client/${encodeURIComponent(slug)}/user/login`}
+              className="inline-flex items-center gap-1.5 rounded-xl bg-white/90 backdrop-blur-md px-4 py-2.5 text-xs font-semibold text-slate-800 shadow-md hover:bg-white transition-colors"
+            >
+              <LogIn className="h-3.5 w-3.5" /> Member Login
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+        {/* Bio summary */}
+        {profile?.bio && (
+          <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-2xs mb-8">
+            <h2 className="text-sm font-bold uppercase tracking-wider text-slate-400 mb-2">
+              About the Creator
+            </h2>
+            <p className="text-slate-700 text-sm leading-relaxed">{profile.bio}</p>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main Feed Column */}
+          <div className="lg:col-span-2 space-y-6">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-200">
+              <h2 className="text-lg font-bold text-slate-900">Recent Posts & Updates</h2>
+              <Link
+                href={`/client/${encodeURIComponent(slug)}/user/feed`}
+                className="text-xs font-semibold text-indigo-600 hover:text-indigo-500"
+              >
+                View full feed →
+              </Link>
+            </div>
+
+            {feedLoading ? (
+              <div className="flex justify-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
+              </div>
+            ) : feedData?.posts && feedData.posts.length > 0 ? (
+              <div className="space-y-6">
+                {feedData.posts.map((post) =>
+                  post.locked ? (
+                    <PostTeaserCard key={post.id} post={post} slug={slug} />
+                  ) : (
+                    <PostCard key={post.id} post={post} slug={slug} />
+                  ),
+                )}
+              </div>
+            ) : (
+              <div className="bg-white rounded-2xl p-8 border border-slate-200 text-center text-slate-500">
+                <p className="text-sm">No public posts yet. Check back soon!</p>
+              </div>
+            )}
+          </div>
+
+          {/* Sidebar: Membership Tiers Column */}
+          <div className="space-y-6">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-200">
+              <div className="flex items-center gap-2">
+                <Layers className="h-4 w-4 text-indigo-600" />
+                <h2 className="text-lg font-bold text-slate-900">Membership Tiers</h2>
+              </div>
+            </div>
+
+            {tiersLoading ? (
+              <div className="flex justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin text-indigo-600" />
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {tiers.map((tier) => (
+                  <div
+                    key={tier.id}
+                    className="bg-white rounded-2xl p-5 border border-slate-200 shadow-2xs hover:border-indigo-300 transition-all"
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <h3 className="font-bold text-slate-900 text-sm">{tier.name}</h3>
+                      <span className="text-xs font-bold text-slate-900">
+                        {tier.rank === 0 || tier.priceMinor === 0
+                          ? "Free"
+                          : `₹${(tier.priceMinor / 100).toFixed(0)}/mo`}
+                      </span>
+                    </div>
+                    {tier.description && (
+                      <p className="text-xs text-slate-500 line-clamp-2 mt-1 mb-3">
+                        {tier.description}
+                      </p>
+                    )}
+                    <Link
+                      href={`/client/${encodeURIComponent(slug)}/user/signup?tierId=${tier.id}`}
+                      className="w-full py-2 bg-slate-100 hover:bg-indigo-50 text-slate-800 hover:text-indigo-600 rounded-lg text-xs font-semibold flex items-center justify-center gap-1 transition-colors"
+                    >
+                      Join Tier
+                    </Link>
+                  </div>
+                ))}
+
+                <Link
+                  href={`/client/${encodeURIComponent(slug)}/public/membership`}
+                  className="block text-center text-xs font-semibold text-indigo-600 hover:text-indigo-500 py-2"
+                >
+                  Compare all tier benefits →
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

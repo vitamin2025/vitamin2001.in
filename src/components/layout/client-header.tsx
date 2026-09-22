@@ -4,10 +4,11 @@ import React from "react";
 import Link from "next/link";
 import { useClient } from "@/providers/client-provider";
 import { Button } from "@/components/ui/button";
-import { ShieldCheck, Layers } from "lucide-react";
+import { ShieldCheck, Layers, Sparkles, LogIn } from "lucide-react";
 
 export function ClientHeader() {
   const { client, clientName } = useClient();
+  const hasCreatorFeature = client?.features?.includes("creator") ?? false;
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-200/80 bg-white/80 backdrop-blur-md">
@@ -31,6 +32,22 @@ export function ClientHeader() {
               Home
             </Button>
           </Link>
+          {hasCreatorFeature && (
+            <>
+              <Link href={`/client/${clientName}/public/membership`}>
+                <Button variant="ghost" size="sm" className="gap-1.5 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Membership</span>
+                </Button>
+              </Link>
+              <Link href={`/client/${clientName}/user/login`}>
+                <Button variant="outline" size="sm" className="gap-1.5 border-slate-300">
+                  <LogIn className="w-3.5 h-3.5" />
+                  <span>Log In</span>
+                </Button>
+              </Link>
+            </>
+          )}
           <Link href={`/client/${clientName}/admin`}>
             <Button size="sm" className="gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white">
               <ShieldCheck className="w-3.5 h-3.5" />

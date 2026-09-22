@@ -201,14 +201,10 @@ export default function HomePage() {
               <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
               <span>Multi-Tenant Isolation</span>
             </div>
-            <div className="flex items-center justify-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-              <span>PayU Verified Gateway</span>
-            </div>
-            <div className="flex items-center justify-center gap-1.5">
+            {/* <div className="flex items-center justify-center gap-1.5">
               <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
               <span>INR (₹) & USD ($) Billing</span>
-            </div>
+            </div> */}
           </div>
         </div>
       </section>
@@ -410,10 +406,10 @@ export default function HomePage() {
                   <span className="text-slate-600">Accepted Currencies</span>
                   <span className="font-semibold text-slate-900">INR (₹) and USD ($)</span>
                 </div>
-                <div className="flex items-center justify-between py-2 border-b border-slate-100">
+                {/* <div className="flex items-center justify-between py-2 border-b border-slate-100">
                   <span className="text-slate-600">Payment Processor</span>
                   <span className="font-semibold text-blue-600">PayU Payment Gateway</span>
-                </div>
+                </div> */}
                 <div className="flex items-center justify-between py-2 border-b border-slate-100">
                   <span className="text-slate-600">Delivery Timeline</span>
                   <span className="font-semibold text-slate-900">Per Agreed SOW / Milestone</span>
@@ -443,7 +439,7 @@ export default function HomePage() {
       </section>
 
       {/* Entity Verification / PayU Compliance Box */}
-      <section className="py-12 bg-white border-t border-slate-200">
+      {/* <section className="py-12 bg-white border-t border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="rounded-2xl border border-blue-200 bg-blue-50/50 p-6 sm:p-8">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -481,7 +477,7 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Contact Section */}
       <section id="contact" className="py-20 bg-slate-50 border-t border-slate-200">

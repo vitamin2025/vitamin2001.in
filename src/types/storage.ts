@@ -4,7 +4,8 @@ export type FileCategory =
   | "documents"
   | "attachments"
   | "exports"
-  | "general";
+  | "general"
+  | "posts";
 
 export type FileVisibility = "public" | "private";
 

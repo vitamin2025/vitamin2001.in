@@ -65,8 +65,8 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
     // In local development, redirect to client subdomain on localhost or path
     const targetUrl = isLocalhost
-      ? `http://${cleanSubdomain}.localhost:${window.location.port || "3000"}/login`
-      : `https://${cleanSubdomain}.${prodDomain}/login`;
+      ? `http://${cleanSubdomain}.localhost:${window.location.port || "3000"}/user/login`
+      : `https://${cleanSubdomain}.${prodDomain}/user/login`;
 
     window.location.href = targetUrl;
   };
@@ -147,11 +147,11 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
               {cleanSubdomain ? (
                 <>
                   <span className="text-blue-600 font-semibold">{cleanSubdomain}</span>
-                  <span>.vitamin2001.in/login</span>
+                  <span>.vitamin2001.in/user/login</span>
                 </>
               ) : (
                 <span className="text-slate-400 font-normal">
-                  [your-org].vitamin2001.in/login
+                  [your-org].vitamin2001.in/user/login
                 </span>
               )}
             </p>

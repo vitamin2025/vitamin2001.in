@@ -22,6 +22,7 @@ import {
   useOrgCommands,
   useOrgMembers,
 } from "@/lib/admin";
+import { CreatorSettingsCard } from "@/components/admin/creator-settings-card";
 
 function OrgEditForm({ o }: { o: NonNullable<ReturnType<typeof useOrg>["item"]> }) {
   const { update } = useOrgCommands();
@@ -96,6 +97,7 @@ export function OrgDetailView({ orgId }: { orgId: string }) {
       </div>
 
       <OrgEditForm o={o} />
+      <CreatorSettingsCard orgId={o.id} />
 
       {o.active ? (
         <DangerButton

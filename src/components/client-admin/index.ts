@@ -5,3 +5,4 @@ export { ClientAdminHeader } from "./client-admin-header";
 export { FeatureGate } from "./feature-gate";
 export { ClientAdminLoginView } from "./login-view";
 export { ClientUserLoginView } from "./client-user-login-view";
+export { FanLoginView } from "./fan-login-view";

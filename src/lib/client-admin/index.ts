@@ -52,4 +52,5 @@ export { clientAuditQuery, useClientAuditLog } from "./audit";
 export type { ClientAuditQuery } from "./audit";
 
 export * from "./linktree";
+export * from "./creator";
 

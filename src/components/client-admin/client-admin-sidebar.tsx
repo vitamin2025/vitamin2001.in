@@ -8,6 +8,7 @@ import {
   LayoutDashboard,
   Link2,
   LogOut,
+  Palette,
   Settings,
   Sparkles,
   Users,
@@ -30,6 +31,7 @@ const icons: Record<FeatureIcon, typeof LayoutDashboard> = {
   audit: ClipboardList,
   spark: Sparkles,
   linktree: Link2,
+  creator: Palette,
 };
 
 export function ClientAdminSidebar() {
