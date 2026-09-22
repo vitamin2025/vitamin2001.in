@@ -13,7 +13,7 @@ import { UserPlus, Globe, LogIn, ArrowRight, CheckCircle2 } from "lucide-react";
 import { useClientSession, useClientAdminAuthCommands } from "@/lib/client-admin";
 import { useFanFollow } from "@/lib/client-admin/creator";
 
-export const signupContract = {
+const _signupContract = {
   createsPatron: true,
   initialRank: 0,
 };

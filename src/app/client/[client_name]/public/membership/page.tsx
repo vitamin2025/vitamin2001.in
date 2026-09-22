@@ -8,7 +8,7 @@ import {
 import { PublicMembershipView } from "@/components/creator/public-membership-view";
 import { LoadingSpinner } from "@/components/common/loading-spinner";
 
-export const joinPageContract = {
+const _joinPageContract = {
   intervals: ["monthly", "annual"],
   supportsCurrency: true,
 };

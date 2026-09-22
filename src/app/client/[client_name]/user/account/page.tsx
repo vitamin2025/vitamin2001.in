@@ -33,7 +33,7 @@ import {
   Layers,
 } from "lucide-react";
 
-export const accountFields = [
+const _accountFields = [
   "tierName",
   "currentPeriodEnd",
   "status",

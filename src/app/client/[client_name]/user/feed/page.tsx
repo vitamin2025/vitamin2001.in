@@ -26,7 +26,7 @@ import {
   Calendar,
 } from "lucide-react";
 
-export const renderPostCard = (locked: boolean) => (locked ? "TeaserCard" : "FullCard");
+const _renderPostCard = (locked: boolean) => (locked ? "TeaserCard" : "FullCard");
 
 export default function FanFeedPage({
   params,
