@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { MediaLibraryDialog } from "./media-library-dialog";
 import { uploadFileHybrid } from "@/lib/storage";
+import { useOptionalClient } from "@/providers/client-provider";
 import type { FileCategory, FileVisibility } from "@/types/storage";
 import {
   UploadCloud,
@@ -47,6 +48,9 @@ export function MediaUploadField({
   name,
   placeholder = "https://example.com/image.png",
 }: MediaUploadFieldProps) {
+  const clientContext = useOptionalClient();
+  const effectiveClientId = clientId || clientContext?.clientName;
+
   const [activeTab, setActiveTab] = useState<"upload" | "library" | "url">("upload");
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
@@ -64,7 +68,7 @@ export function MediaUploadField({
         {
           category,
           visibility,
-          clientId,
+          clientId: effectiveClientId,
         },
         (pct) => setUploadProgress(pct),
       );
@@ -302,7 +306,7 @@ export function MediaUploadField({
           setIsLibraryOpen(false);
         }}
         category={category}
-        clientId={clientId}
+        clientId={effectiveClientId}
       />
     </div>
   );

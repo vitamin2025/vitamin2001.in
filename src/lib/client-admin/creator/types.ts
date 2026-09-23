@@ -100,3 +100,14 @@ export interface FeedResponse {
   page: number;
   limit: number;
 }
+
+export interface CreatorComment {
+  id: string;
+  postId: string;
+  userId: string;
+  userName?: string;
+  userImage?: string | null;
+  parentId?: string | null;
+  body: string;
+  createdAt: string;
+}

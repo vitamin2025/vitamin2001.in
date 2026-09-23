@@ -9,6 +9,7 @@ import type {
   CreatorPost,
   Patron,
   FeedResponse,
+  CreatorComment,
 } from "./types";
 
 export async function creatorPublicRequest<T>(spec: {
@@ -173,11 +174,11 @@ export function useFanCheckout(slug: string) {
   });
 }
 
-export function usePostComments(slug: string, postId: string, enabled: boolean) {
+export function usePostComments(slug: string, postId: string, enabled: boolean = true) {
   return useQuery({
     queryKey: creatorKeys.comments(slug, postId),
     queryFn: () =>
-      creatorPublicRequest<{ comments: { id: string; body: string; parentId: string | null; userId: string }[] }>({
+      creatorPublicRequest<{ comments: CreatorComment[] }>({
         method: "GET",
         slug,
         path: `/posts/${postId}/comments`,
@@ -190,7 +191,7 @@ export function useCreateComment(slug: string, postId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (body: string) =>
-      creatorPublicRequest<{ id: string; body: string }>({
+      creatorPublicRequest<CreatorComment>({
         method: "POST",
         slug,
         path: `/posts/${postId}/comments`,
@@ -198,6 +199,8 @@ export function useCreateComment(slug: string, postId: string) {
       }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: creatorKeys.comments(slug, postId) });
+      qc.invalidateQueries({ queryKey: creatorKeys.post(slug, postId) });
+      qc.invalidateQueries({ queryKey: creatorKeys.fanFeed(slug) });
     },
   });
 }

@@ -43,10 +43,28 @@ export async function fetchStorageFiles(query: ListFilesQuery = {}): Promise<Lis
   if (query.category && query.category !== "all") params.category = query.category;
   if (query.visibility) params.visibility = query.visibility;
   if (query.clientId && query.clientId !== "all") params.clientId = query.clientId;
-  if (query.search) params.search = query.search;
+  if (query.search) {
+    params.search = query.search;
+    params.q = query.search;
+  }
 
-  const res = await storageHttp.get<ListFilesResponse>("", { params });
-  return res.data;
+  const res = await storageHttp.get<any>("", { params });
+  const raw = res.data;
+  const items = Array.isArray(raw?.items)
+    ? raw.items
+    : Array.isArray(raw?.data)
+      ? raw.data
+      : [];
+  const meta = raw?.meta ?? {
+    total: typeof raw?.total === "number" ? raw.total : items.length,
+    page: typeof raw?.page === "number" ? raw.page : (query.page ?? 1),
+    limit: typeof raw?.limit === "number" ? raw.limit : (query.limit ?? 20),
+    totalPages:
+      typeof raw?.totalPages === "number"
+        ? raw.totalPages
+        : Math.ceil((raw?.total ?? items.length) / (query.limit ?? 20)) || 1,
+  };
+  return { items, meta };
 }
 
 export async function fetchStorageFile(id: string): Promise<FileRecord> {

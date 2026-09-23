@@ -3,12 +3,16 @@
 import React from "react";
 import Link from "next/link";
 import { useClient } from "@/providers/client-provider";
+import { useClientSession } from "@/lib/client-admin";
+import { useFanMe } from "@/lib/client-admin/creator";
 import { Button } from "@/components/ui/button";
-import { ShieldCheck, Layers, Sparkles, LogIn } from "lucide-react";
+import { ShieldCheck, Layers, Sparkles, LogIn, User } from "lucide-react";
 
 export function ClientHeader() {
-  const { client, clientName } = useClient();
-  const hasCreatorFeature = client?.features?.includes("creator") ?? false;
+  const { client, clientName, hasCreatorFeature } = useClient();
+  const session = useClientSession();
+  const { data: patron } = useFanMe(clientName);
+  const isLoggedIn = session.status === "granted" || Boolean(patron);
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-200/80 bg-white/80 backdrop-blur-md">
@@ -40,12 +44,21 @@ export function ClientHeader() {
                   <span>Membership</span>
                 </Button>
               </Link>
-              <Link href={`/client/${clientName}/user/login`}>
-                <Button variant="outline" size="sm" className="gap-1.5 border-slate-300">
-                  <LogIn className="w-3.5 h-3.5" />
-                  <span>Log In</span>
-                </Button>
-              </Link>
+              {isLoggedIn ? (
+                <Link href={`/client/${clientName}/user/account`}>
+                  <Button variant="outline" size="sm" className="gap-1.5 border-slate-300">
+                    <User className="w-3.5 h-3.5 text-indigo-600" />
+                    <span>My Account</span>
+                  </Button>
+                </Link>
+              ) : (
+                <Link href={`/client/${clientName}/user/login`}>
+                  <Button variant="outline" size="sm" className="gap-1.5 border-slate-300">
+                    <LogIn className="w-3.5 h-3.5" />
+                    <span>Log In</span>
+                  </Button>
+                </Link>
+              )}
             </>
           )}
           <Link href={`/client/${clientName}/admin`}>

@@ -5,7 +5,7 @@ export const CLIENT_REGISTRY: Record<string, ClientConfig> = {
     name: "Runachan",
     subdomain: "runachan",
     tagline: "Tailored digital experiences and operations",
-    features: ["analytics", "client-portal", "custom-theming", "reports"],
+    features: ["analytics", "client-portal", "custom-theming", "reports", "creator"],
     adminEnabled: true,
   },
 };
