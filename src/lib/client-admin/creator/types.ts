@@ -111,3 +111,43 @@ export interface CreatorComment {
   body: string;
   createdAt: string;
 }
+
+export interface CheckoutResponse {
+  paymentId: string;
+  checkoutUrl: string;
+  status: string;
+  gatewaySubscriptionId?: string;
+  payuFormData?: Record<string, string>;
+  isUpgrade?: boolean;
+  amountMinor?: number;
+}
+
+export interface PaymentTransaction {
+  id: string;
+  patronId: string;
+  tierId: string;
+  tierName: string;
+  fanName: string;
+  fanEmail: string;
+  amountMinor: number;
+  amount: number;
+  currency: string;
+  status: string;
+  gatewayPaymentId?: string | null;
+  createdAt: string;
+}
+
+export interface PaginatedTransactions {
+  transactions: PaymentTransaction[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export interface CreatorEarningsSummary {
+  grossRevenue: number;
+  mrr: number;
+  capturedCount: number;
+  currency: string;
+}
+

@@ -9,6 +9,8 @@ import type {
   CreatorPost,
   Patron,
   FeedResponse,
+  CreatorEarningsSummary,
+  PaginatedTransactions,
 } from "./types";
 
 // Helper request wrapper
@@ -243,12 +245,26 @@ export function useCreatorEarnings(slug: string) {
   return useQuery({
     queryKey: creatorKeys.earnings(slug),
     queryFn: () =>
-      creatorAdminRequest<{
-        grossRevenueMinor: number;
-        capturedCount: number;
-        mrrMinor: number;
-        currency: string;
-      }>({ method: "GET", path: "/earnings/summary" }),
+      creatorAdminRequest<CreatorEarningsSummary>({
+        method: "GET",
+        path: "/earnings/summary",
+      }),
+  });
+}
+
+export function useCreatorTransactions(
+  slug: string,
+  page: number = 1,
+  limit: number = 10,
+) {
+  return useQuery({
+    queryKey: [...creatorKeys.earnings(slug), "transactions", page, limit],
+    queryFn: () =>
+      creatorAdminRequest<PaginatedTransactions>({
+        method: "GET",
+        path: "/earnings/transactions",
+        query: { page, limit },
+      }),
   });
 }
 

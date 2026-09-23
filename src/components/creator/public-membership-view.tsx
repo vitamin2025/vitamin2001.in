@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Check, MessageSquare, Sparkles, Shield, ArrowRight } from "lucide-react";
-import type { CreatorProfile, CreatorTier } from "@/lib/client-admin/creator";
+import { type CreatorProfile, type CreatorTier, useFanMe } from "@/lib/client-admin/creator";
 
 interface PublicMembershipViewProps {
   slug: string;
@@ -17,6 +17,7 @@ export function PublicMembershipView({
   tiers = [],
 }: PublicMembershipViewProps) {
   const [interval, setInterval] = useState<"monthly" | "annual">("monthly");
+  const { data: patron } = useFanMe(slug);
 
   const creatorName = profile?.name || slug;
 
@@ -165,16 +166,56 @@ export function PublicMembershipView({
                 </div>
 
                 <div className="mt-8 pt-4 border-t border-slate-100">
-                  <Link
-                    href={`/client/${encodeURIComponent(slug)}/user/signup?tierId=${tier.id}`}
-                    className={`w-full py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 shadow-xs transition-colors ${
-                      tier.rank === 1
-                        ? "bg-indigo-600 hover:bg-indigo-500 text-white"
-                        : "bg-slate-900 hover:bg-slate-800 text-white"
-                    }`}
-                  >
-                    Join {tier.name}
-                  </Link>
+                  {(() => {
+                    const isCurrent =
+                      patron?.status === "active" &&
+                      patron?.tierId === tier.id &&
+                      patron?.currentPeriodEnd &&
+                      new Date(patron.currentPeriodEnd) > new Date();
+
+                    const isUpgrade =
+                      patron?.status === "active" &&
+                      patron?.tierId &&
+                      Number(tier.rank) > Number(patron.tierRank || 0) &&
+                      patron?.currentPeriodEnd &&
+                      new Date(patron.currentPeriodEnd) > new Date();
+
+                    if (isCurrent) {
+                      return (
+                        <Link
+                          href={`/client/${encodeURIComponent(slug)}/user/feed`}
+                          className="w-full py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 shadow-xs border border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors"
+                        >
+                          <Check className="h-3.5 w-3.5" />
+                          <span>Current Plan • Go to Feed</span>
+                        </Link>
+                      );
+                    }
+
+                    const href = isFree
+                      ? `/client/${encodeURIComponent(slug)}/user/signup?tierId=${tier.id}`
+                      : `/client/${encodeURIComponent(slug)}/user/checkout?tierId=${tier.id}`;
+
+                    const label = isUpgrade
+                      ? `Upgrade to ${tier.name}`
+                      : isFree
+                      ? `Join ${tier.name}`
+                      : `Subscribe to ${tier.name}`;
+
+                    return (
+                      <Link
+                        href={href}
+                        className={`w-full py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 shadow-xs transition-colors ${
+                          tier.rank === 1 || isUpgrade
+                            ? "bg-indigo-600 hover:bg-indigo-500 text-white"
+                            : "bg-slate-900 hover:bg-slate-800 text-white"
+                        }`}
+                      >
+                        <span>{label}</span>
+                        <ArrowRight className="h-3.5 w-3.5" />
+                      </Link>
+                    );
+                  })()}
                 </div>
               </div>
             );

@@ -168,6 +168,38 @@ export default function FanAccountPage({
           </CardContent>
         </Card>
 
+        {/* Status Alerts */}
+        {patron?.cancelAtPeriodEnd && (
+          <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs flex items-start gap-3">
+            <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5 text-amber-600" />
+            <div className="space-y-1">
+              <p className="font-bold">Cancellation Scheduled</p>
+              <p className="leading-relaxed text-amber-700">
+                Your subscription has been cancelled and will not renew. You retain full tier access until <strong className="font-semibold">{currentPeriodEnd}</strong>.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {status === "expired" && (
+          <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs flex items-start justify-between gap-3">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5 text-red-600" />
+              <div className="space-y-1">
+                <p className="font-bold">Membership Expired</p>
+                <p className="leading-relaxed text-red-700">
+                  Your previous tier subscription has expired. Renew now to restore exclusive content and direct messaging access.
+                </p>
+              </div>
+            </div>
+            <Link href={`/client/${encodeURIComponent(slug)}/public/membership`}>
+              <Button size="sm" className="text-xs bg-red-600 hover:bg-red-700 text-white shrink-0">
+                Renew Plan
+              </Button>
+            </Link>
+          </div>
+        )}
+
         {/* Membership Details Card */}
         <Card className="shadow-2xs border-slate-200">
           <CardHeader>
@@ -181,6 +213,8 @@ export default function FanAccountPage({
                 className={
                   status === "active"
                     ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                    : status === "expired"
+                    ? "bg-red-50 text-red-700 border-red-200"
                     : "bg-slate-100 text-slate-600"
                 }
               >
@@ -218,14 +252,25 @@ export default function FanAccountPage({
             </div>
 
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
-              <Link href={`/client/${encodeURIComponent(slug)}/public/membership`}>
-                <Button variant="outline" size="sm" className="text-xs gap-1.5 border-indigo-200 text-indigo-700 hover:bg-indigo-50">
-                  <Layers className="h-3.5 w-3.5" />
-                  <span>Browse All Tiers</span>
-                </Button>
-              </Link>
+              <div className="flex items-center gap-2">
+                <Link href={`/client/${encodeURIComponent(slug)}/public/membership`}>
+                  <Button variant="outline" size="sm" className="text-xs gap-1.5 border-indigo-200 text-indigo-700 hover:bg-indigo-50">
+                    <Layers className="h-3.5 w-3.5" />
+                    <span>Browse All Tiers</span>
+                  </Button>
+                </Link>
 
-              {patron && patron.tierRank > 0 && (
+                {patron && Number(patron.tierRank) > 0 && status === "active" && !patron.cancelAtPeriodEnd && (
+                  <Link href={`/client/${encodeURIComponent(slug)}/public/membership`}>
+                    <Button size="sm" className="text-xs gap-1.5 bg-indigo-600 hover:bg-indigo-500 text-white">
+                      <Sparkles className="h-3.5 w-3.5" />
+                      <span>Upgrade Tier</span>
+                    </Button>
+                  </Link>
+                )}
+              </div>
+
+              {patron && Number(patron.tierRank) > 0 && status === "active" && !patron.cancelAtPeriodEnd && (
                 <Button
                   variant="destructive"
                   size="sm"

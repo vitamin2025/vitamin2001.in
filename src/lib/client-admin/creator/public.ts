@@ -10,6 +10,7 @@ import type {
   Patron,
   FeedResponse,
   CreatorComment,
+  CheckoutResponse,
 } from "./types";
 
 export async function creatorPublicRequest<T>(spec: {
@@ -165,12 +166,32 @@ export function useFanCancel(slug: string) {
 export function useFanCheckout(slug: string) {
   return useMutation({
     mutationFn: (tierId: string) =>
-      creatorPublicRequest<{ checkoutUrl: string; status: string }>({
+      creatorPublicRequest<CheckoutResponse>({
         method: "POST",
         slug,
         path: "/checkout",
         body: { tierId },
       }),
+  });
+}
+
+export function usePaymentStatus(slug: string, enabled: boolean = true) {
+  return useQuery({
+    queryKey: [...creatorKeys.fanMe(slug), "checkout-status"],
+    queryFn: () =>
+      creatorPublicRequest<{
+        status: string;
+        subscriptionId: string;
+        tierRank: number;
+        tierName?: string;
+        currentPeriodEnd?: string | null;
+        cancelAtPeriodEnd?: boolean;
+      }>({
+        method: "GET",
+        slug,
+        path: "/checkout/status",
+      }),
+    enabled: Boolean(slug && enabled),
   });
 }
 
