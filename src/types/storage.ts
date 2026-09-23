@@ -22,6 +22,7 @@ export interface FileRecord {
   category: FileCategory | string;
   visibility: FileVisibility;
   status: FileStatus;
+  provider?: "gcs" | "api_video";
   clientId: string;
   uploaderId: string;
   metadata?: Record<string, unknown> | null;

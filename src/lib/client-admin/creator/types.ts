@@ -33,7 +33,11 @@ export interface PostAttachment {
   sizeBytes?: number;
   caption: string | null;
   position: number;
-  signedUrl: string;
+  signedUrl?: string;
+  provider?: "gcs" | "api_video";
+  apiVideoId?: string;
+  playerUrl?: string;
+  thumbnailUrl?: string | null;
 }
 
 export interface CreatorPost {

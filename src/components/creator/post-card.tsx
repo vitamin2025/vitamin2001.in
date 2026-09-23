@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import type { CreatorPost } from "@/lib/client-admin/creator";
 import { VideoPlayer } from "@/components/creator/video-player";
+import { VideoPlayerLegacy } from "@/components/creator/video-player-legacy";
+import { EmbedPlayer } from "@/components/creator/embed-player";
 import { cn } from "@/lib/utils";
 
 interface PostCardProps {
@@ -149,9 +151,20 @@ export function PostCard({
             }
 
             if (isVideo) {
+              if (att.provider === "api_video" && att.apiVideoId) {
+                return (
+                  <div key={att.id} className="rounded-xl overflow-hidden border border-slate-200 bg-black">
+                    <VideoPlayer videoId={att.apiVideoId} poster={att.thumbnailUrl || undefined} />
+                    {att.caption && (
+                      <p className="p-2 text-xs text-slate-300 italic bg-slate-900">{att.caption}</p>
+                    )}
+                  </div>
+                );
+              }
+
               return (
                 <div key={att.id} className="rounded-xl overflow-hidden border border-slate-200 bg-black">
-                  <VideoPlayer src={att.signedUrl} />
+                  <VideoPlayerLegacy src={att.signedUrl || ""} />
                   {att.caption && (
                     <p className="p-2 text-xs text-slate-300 italic bg-slate-900">{att.caption}</p>
                   )}
@@ -195,6 +208,13 @@ export function PostCard({
               </a>
             );
           })}
+        </div>
+      )}
+
+      {/* External Embed (YouTube, Vimeo, etc.) */}
+      {!mediaLocked && post.embedUrl && (
+        <div className="border-t border-slate-100 bg-slate-50/50 p-4">
+          <EmbedPlayer embedUrl={post.embedUrl} />
         </div>
       )}
 

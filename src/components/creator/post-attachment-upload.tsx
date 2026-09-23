@@ -13,6 +13,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { uploadFileHybrid } from "@/lib/storage";
+import { uploadVideoToApiVideo } from "@/lib/storage/video-upload";
 
 export interface AttachedFileItem {
   fileRecordId: string;
@@ -59,25 +60,51 @@ export function PostAttachmentUpload({
 
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        const record = await uploadFileHybrid(
-          file,
-          {
-            category: "posts",
-            visibility: "private",
-            clientId: orgId,
-          },
-          (p) => {
-            const overall = Math.round(((i + p / 100) / files.length) * 100);
-            setProgress(overall);
-          },
-        );
+        const isVideo = file.type.startsWith("video/") || file.name.match(/\.(mp4|mov|webm|mkv|avi|m4v)$/i);
+
+        let fileRecordId: string;
+        let fileName: string;
+        let mimeType: string;
+        let sizeBytes: number;
+
+        if (isVideo) {
+          const result = await uploadVideoToApiVideo(
+            file,
+            { clientId: orgId },
+            (p) => {
+              const overall = Math.round(((i + p / 100) / files.length) * 100);
+              setProgress(overall);
+            },
+          );
+          fileRecordId = result.fileRecord.id;
+          fileName = result.fileRecord.fileName || file.name;
+          mimeType = result.fileRecord.mimeType || file.type || "video/mp4";
+          sizeBytes = result.fileRecord.sizeBytes || file.size;
+        } else {
+          const record = await uploadFileHybrid(
+            file,
+            {
+              category: "posts",
+              visibility: "private",
+              clientId: orgId,
+            },
+            (p) => {
+              const overall = Math.round(((i + p / 100) / files.length) * 100);
+              setProgress(overall);
+            },
+          );
+          fileRecordId = record.id;
+          fileName = record.fileName || file.name;
+          mimeType = record.mimeType || file.type;
+          sizeBytes = record.sizeBytes || file.size;
+        }
 
         newItems.push({
-          fileRecordId: record.id,
+          fileRecordId,
           position: newItems.length,
-          fileName: record.fileName || file.name,
-          mimeType: record.mimeType || file.type,
-          sizeBytes: record.sizeBytes || file.size,
+          fileName,
+          mimeType,
+          sizeBytes,
           caption: "",
         });
       }
@@ -118,7 +145,7 @@ export function PostAttachmentUpload({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <label className="block text-sm font-semibold text-slate-900">
-          Media Attachments (Private GCS)
+          Media Attachments (Videos powered by api.video)
         </label>
         <span className="text-xs text-slate-500">
           {attachments.length} of {maxFiles} max
@@ -135,7 +162,7 @@ export function PostAttachmentUpload({
             type="file"
             multiple
             className="hidden"
-            accept="image/*,video/mp4,audio/mpeg,audio/wav,application/pdf"
+            accept="image/*,video/*,audio/mpeg,audio/wav,application/pdf"
             onChange={handleFileSelect}
             disabled={isUploading}
           />
@@ -160,7 +187,7 @@ export function PostAttachmentUpload({
                 Click to upload images, video, audio, or PDF
               </p>
               <p className="text-xs text-slate-400 mt-1">
-                Files are stored securely with private visibility in Google Cloud Storage
+                Videos are streamed via api.video; other files stored securely in cloud storage
               </p>
             </div>
           )}
