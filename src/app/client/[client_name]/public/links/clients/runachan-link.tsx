@@ -8,7 +8,11 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { SocialIcon } from "@/components/client-admin/linktree/social-icons";
-import type { PublicLinktreeData, PublicLinktreeLink } from "@/lib/client-admin/linktree/public";
+import type {
+  PublicLinktreeData,
+  PublicLinktreeLink,
+  PublicLinktreeSocial,
+} from "@/lib/client-admin/linktree/public";
 
 /* Ribbon Bow Component */
 function PinkRibbonBow({ className }: { className?: string }) {
@@ -232,9 +236,25 @@ const FALLBACK_LINKS: PublicLinktreeLink[] = [
   },
 ];
 
+/* Default social links matching Runachan */
+const FALLBACK_SOCIALS: PublicLinktreeSocial[] = [
+  {
+    id: "fb-soc-ig",
+    platform: "instagram",
+    url: "https://instagram.com/runachan.exe",
+    position: 0,
+  },
+];
+
 export function RunachanLinkPage({ data }: { data: PublicLinktreeData | null }) {
   const avatarUrl = data?.avatarUrl || "/clients/runachan/default-avatar.jpg";
   const links = data?.links && data.links.length > 0 ? data.links : FALLBACK_LINKS;
+  const socialLinks =
+    data?.socialLinks && data.socialLinks.length > 0
+      ? data.socialLinks
+      : !data
+        ? FALLBACK_SOCIALS
+        : [];
 
   // Custom bio or the signature Runa tagline
   const isCorporateBio =
@@ -510,6 +530,27 @@ export function RunachanLinkPage({ data }: { data: PublicLinktreeData | null }) 
               );
             })}
           </div>
+
+          {/* Social Profile Links */}
+          {socialLinks.length > 0 && (
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+              {socialLinks.map((social) => (
+                <a
+                  key={social.id}
+                  href={social.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={social.platform}
+                  className="group relative flex h-11 w-11 items-center justify-center rounded-2xl border border-pink-400/40 bg-[#140818]/90 text-pink-300 shadow-[0_4px_16px_rgba(0,0,0,0.5)] backdrop-blur-md transition-all duration-200 hover:-translate-y-1 hover:border-pink-300 hover:bg-pink-500/20 hover:text-white hover:shadow-[0_0_22px_rgba(255,77,154,0.5)]"
+                >
+                  <SocialIcon
+                    platform={social.platform}
+                    className="h-5 w-5 transition-transform duration-200 group-hover:scale-110"
+                  />
+                </a>
+              ))}
+            </div>
+          )}
         </section>
 
         {/* ======================================================== */}
