@@ -49,9 +49,10 @@ export default async function PublicLinktreePage({ params }: PublicLinktreeProps
 
   const customTheme = page?.custom?.theme;
   const CustomPage =
-    customTheme && page?.slug ? getCustomLinkPage(page.slug) : undefined;
+    (customTheme && page?.slug ? getCustomLinkPage(page.slug) : undefined) ||
+    getCustomLinkPage(client_name);
 
-  if (page && CustomPage) {
+  if (CustomPage) {
     return createElement(CustomPage, { data: page });
   }
 
