@@ -1,6 +1,12 @@
 import { getClientConfigOrFallback } from "@/config/clients";
+import { resolveClientMetadata } from "@/lib/client-admin/client-metadata";
 import { ClientProvider } from "@/providers/client-provider";
 import type { ClientLayoutProps } from "@/types/client";
+
+export async function generateMetadata({ params }: Pick<ClientLayoutProps, "params">) {
+  const { client_name } = await params;
+  return resolveClientMetadata(client_name);
+}
 
 export default async function ClientLayout({
   children,

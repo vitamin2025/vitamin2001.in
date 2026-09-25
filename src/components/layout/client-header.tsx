@@ -25,9 +25,6 @@ export function ClientHeader() {
             <Layers className="w-4 h-4" />
           </div>
           <span>{client?.name || clientName}</span>
-          <span className="text-xs font-normal text-slate-400 font-mono hidden sm:inline">
-            ({clientName}.vitamin2001.in)
-          </span>
         </Link>
 
         <nav className="flex items-center gap-3">

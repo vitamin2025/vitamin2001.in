@@ -627,19 +627,6 @@ export function RunachanLinkPage({ data }: { data: PublicLinktreeData | null }) 
             </div>
           </div>
         </div>
-
-        {/* Discreet Vitamin credit link */}
-        <div className="relative z-10 w-full bg-[#07030a] py-2 text-center text-[10px] tracking-[0.2em] text-pink-400/40">
-          <span>POWERED BY </span>
-          <a
-            href="https://vitamin2001.in"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-semibold text-pink-300/60 hover:text-pink-200 transition-colors"
-          >
-            VITAMIN
-          </a>
-        </div>
       </footer>
     </main>
   );

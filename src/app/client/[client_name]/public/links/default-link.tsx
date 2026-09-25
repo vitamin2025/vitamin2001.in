@@ -167,20 +167,6 @@ export function DefaultLinkPage({
           </div>
         )}
       </div>
-
-      <footer className="relative z-10 mt-12 text-center text-xs text-white/50">
-        <p className="flex items-center justify-center gap-1">
-          <span>Powered by</span>
-          <a
-            href="https://vitamin2001.in"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-semibold text-white/80 transition-colors hover:text-white hover:underline"
-          >
-            Vitamin
-          </a>
-        </p>
-      </footer>
     </main>
   );
 }
