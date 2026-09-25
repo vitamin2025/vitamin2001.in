@@ -38,12 +38,6 @@ export function ClientHeader() {
           </Link>
           {hasCreatorFeature && (
             <>
-              <Link href={`/client/${clientName}/public/membership`}>
-                <Button variant="ghost" size="sm" className="gap-1.5 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50">
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>Membership</span>
-                </Button>
-              </Link>
               {isLoggedIn ? (
                 <Link href={`/client/${clientName}/user/account`}>
                   <Button variant="outline" size="sm" className="gap-1.5 border-slate-300">
@@ -61,12 +55,6 @@ export function ClientHeader() {
               )}
             </>
           )}
-          <Link href={`/client/${clientName}/admin`}>
-            <Button size="sm" className="gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white">
-              <ShieldCheck className="w-3.5 h-3.5" />
-              Admin Portal
-            </Button>
-          </Link>
         </nav>
       </div>
     </header>

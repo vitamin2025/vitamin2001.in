@@ -128,6 +128,7 @@ export function useAuthCommands(): {
   readonly signIn: Command<{ email: string; password: string }, void>;
   readonly signUp: Command<{ name: string; email: string; password: string }, void>;
   readonly signOut: Command<void, void>;
+  readonly changePassword: Command<{ currentPassword: string; newPassword: string }, void>;
 } {
   const queryClient = useQueryClient();
   const signIn = useCommand<{ email: string; password: string }, void>({
@@ -176,7 +177,28 @@ export function useAuthCommands(): {
     effect: () => ({ on: "signedOut" }),
   });
 
-  return { signIn, signUp, signOut };
+  const changePassword = useCommand<
+    { currentPassword: string; newPassword: string },
+    void
+  >({
+    actorId: null,
+    fields: ["currentPassword", "newPassword"],
+    send: async (input) => {
+      await authRequest({
+        method: "POST",
+        path: "/change-password",
+        body: {
+          currentPassword: input.currentPassword,
+          newPassword: input.newPassword,
+          revokeOtherSessions: false,
+        },
+        parse: () => undefined,
+      });
+    },
+    effect: () => ({ on: "session.changed" }),
+  });
+
+  return { signIn, signUp, signOut, changePassword };
 }
 
 export type { Actor, OrgId, UserId };

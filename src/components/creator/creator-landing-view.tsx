@@ -68,6 +68,16 @@ export function CreatorLandingView({ slug }: CreatorLandingViewProps) {
 
   const categories = ["All", "Articles", "Updates", "Videos", "Podcasts"];
 
+  const hasPaidMembership =
+    patron?.status === "active" && Number(patron.tierRank) > 0;
+  const currentTier = hasPaidMembership
+    ? tiers.find((tier) => tier.id === patron?.tierId) ||
+      tiers.find((tier) => Number(tier.rank) === Number(patron?.tierRank))
+    : null;
+  const canUpgrade =
+    hasPaidMembership &&
+    tiers.some((tier) => Number(tier.rank) > Number(patron?.tierRank));
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 pb-20">
       {/* Hero Banner */}
@@ -240,13 +250,42 @@ export function CreatorLandingView({ slug }: CreatorLandingViewProps) {
             <div className="flex items-center justify-between pb-2 border-b border-slate-200">
               <div className="flex items-center gap-2">
                 <Layers className="h-4 w-4 text-indigo-600" />
-                <h2 className="text-lg font-bold text-slate-900">Membership Tiers</h2>
+                <h2 className="text-lg font-bold text-slate-900">
+                  {hasPaidMembership ? "Your membership" : "Membership Tiers"}
+                </h2>
               </div>
             </div>
 
             {tiersLoading ? (
               <div className="flex justify-center py-8">
                 <Loader2 className="h-6 w-6 animate-spin text-indigo-600" />
+              </div>
+            ) : hasPaidMembership ? (
+              <div className="bg-white rounded-2xl p-5 border border-indigo-200 shadow-2xs space-y-3">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-indigo-600">
+                  Current plan
+                </p>
+                <div className="flex items-center justify-between gap-2">
+                  <h3 className="font-bold text-slate-900 text-sm">
+                    {currentTier?.name || patron?.tierName || `Tier ${patron?.tierRank}`}
+                  </h3>
+                  {currentTier && (
+                    <span className="text-xs font-bold text-slate-900">
+                      ₹{(currentTier.priceMinor / 100).toFixed(0)}/mo
+                    </span>
+                  )}
+                </div>
+                {currentTier?.description && (
+                  <p className="text-xs text-slate-500 line-clamp-3">{currentTier.description}</p>
+                )}
+                {canUpgrade && (
+                  <Link
+                    href={`/client/${encodeURIComponent(slug)}/public/membership`}
+                    className="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold flex items-center justify-center gap-1 transition-colors"
+                  >
+                    Upgrade <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
+                )}
               </div>
             ) : (
               <div className="space-y-4">

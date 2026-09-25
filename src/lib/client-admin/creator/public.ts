@@ -170,7 +170,11 @@ export function useFanCheckout(slug: string) {
         method: "POST",
         slug,
         path: "/checkout",
-        body: { tierId },
+        body: {
+          tierId,
+          returnOrigin:
+            typeof window !== "undefined" ? window.location.origin : undefined,
+        },
       }),
   });
 }

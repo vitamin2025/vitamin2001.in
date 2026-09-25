@@ -247,9 +247,9 @@ export default function EditPostPage({
                 onChange={(e) => setStatus(e.target.value as any)}
                 className="w-full text-xs border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-hidden"
               >
-                <option value="draft">Draft (Saved only to admin)</option>
-                <option value="published">Published (Visible immediately)</option>
-                <option value="scheduled">Scheduled (Evaluated at read-time)</option>
+                <option value="draft">Draft</option>
+                <option value="published">Published</option>
+                <option value="scheduled">Scheduled</option>
               </select>
             </div>
 

@@ -70,21 +70,10 @@ export default function CreatorDashboardPage({
           <p className="mt-3 text-2xl font-extrabold text-slate-900">{totalPosts}</p>
           <p className="mt-1 text-xs text-slate-400">Published & drafts</p>
         </div>
-
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500">Estimated MRR</span>
-            <div className="p-2 rounded-lg bg-emerald-50 text-emerald-600">
-              <TrendingUp className="h-4 w-4" />
-            </div>
-          </div>
-          <p className="mt-3 text-2xl font-extrabold text-slate-900">Phase 2</p>
-          <p className="mt-1 text-xs text-slate-400">Payments gateway ready</p>
-        </div>
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-gradient-to-r from-indigo-900 to-slate-900 rounded-2xl p-6 text-white shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="bg-linear-to-r from-indigo-900 to-slate-900 rounded-2xl p-6 text-white shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
         <div>
           <span className="inline-flex items-center gap-1 rounded-md bg-white/10 px-2 py-0.5 text-xs font-medium text-indigo-200 mb-1">
             <Sparkles className="h-3 w-3" /> Quick Launch
