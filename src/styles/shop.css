@@ -1,0 +1,71 @@
+/*
+ * Storefront theme. `--shop-accent` follows the client's brand colour (`--client-brand` from its
+ * theme) and can be set per shop inline; the other shades follow it.
+ */
+.shop-theme {
+  --shop-accent: var(--client-brand, #4f46e5);
+  --shop-accent-strong: color-mix(in oklab, var(--shop-accent) 82%, black);
+  --shop-accent-soft: color-mix(in oklab, var(--shop-accent) 9%, white);
+  --shop-accent-ring: color-mix(in oklab, var(--shop-accent) 35%, transparent);
+}
+
+/* Product descriptions come from the shop admin as HTML. */
+.shop-prose {
+  line-height: 1.7;
+  color: #334155;
+}
+.shop-prose p,
+.shop-prose ul,
+.shop-prose ol,
+.shop-prose table,
+.shop-prose blockquote {
+  margin: 0 0 0.9em;
+}
+.shop-prose h1,
+.shop-prose h2,
+.shop-prose h3,
+.shop-prose h4 {
+  margin: 1.2em 0 0.5em;
+  font-weight: 600;
+  color: #0f172a;
+}
+.shop-prose ul {
+  list-style: disc;
+  padding-left: 1.25em;
+}
+.shop-prose ol {
+  list-style: decimal;
+  padding-left: 1.25em;
+}
+.shop-prose a {
+  color: var(--shop-accent);
+  text-decoration: underline;
+}
+.shop-prose table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+.shop-prose th,
+.shop-prose td {
+  border: 1px solid #e2e8f0;
+  padding: 0.4rem 0.6rem;
+  text-align: left;
+}
+.shop-prose img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+}
+
+/* Horizontal galleries scroll by snapping, without a visible scrollbar. */
+.shop-snap {
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+.shop-snap::-webkit-scrollbar {
+  display: none;
+}
+.shop-snap > * {
+  scroll-snap-align: start;
+}

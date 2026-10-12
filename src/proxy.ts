@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { CLIENT_SUBDOMAIN_HEADER as SUBDOMAIN_HEADER } from "@/lib/client-subdomain";
 
 export function proxy(request: NextRequest) {
   // 1. Get requested hostname (e.g. 'runachan.vitamin2001.in', 'vitamin2001.in', or 'localhost:3000')
@@ -37,17 +38,23 @@ export function proxy(request: NextRequest) {
     }
   }
 
+  // Pages read this to build links without the internal /client/[subdomain] prefix.
+  // Never trust a value the browser sent.
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.delete(SUBDOMAIN_HEADER);
+
   // 4. If request is on a subdomain, rewrite to internal /client/[subdomain] path
   if (subdomain && subdomain !== "www") {
     // Avoid double prefixing if pathname already starts with /client/[subdomain]
     if (!url.pathname.startsWith(`/client/${subdomain}`)) {
       url.pathname = `/client/${subdomain}${url.pathname === "/" ? "" : url.pathname}`;
-      return NextResponse.rewrite(url);
+      requestHeaders.set(SUBDOMAIN_HEADER, subdomain);
+      return NextResponse.rewrite(url, { request: { headers: requestHeaders } });
     }
   }
 
   // Continue normally if it is the main domain or already rewritten
-  return NextResponse.next();
+  return NextResponse.next({ request: { headers: requestHeaders } });
 }
 
 // 5. Optimization: Ignore static assets and APIs

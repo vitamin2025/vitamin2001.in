@@ -5,14 +5,16 @@ import Link from "next/link";
 import { useClient } from "@/providers/client-provider";
 import { useClientSession } from "@/lib/client-admin";
 import { useFanMe } from "@/lib/client-admin/creator";
+import { useClientShop } from "@/lib/shop/client-shop";
 import { Button } from "@/components/ui/button";
-import { ShieldCheck, Layers, Sparkles, LogIn, User } from "lucide-react";
+import { ShieldCheck, Layers, Sparkles, LogIn, User, ShoppingBag } from "lucide-react";
 
 export function ClientHeader() {
   const { client, clientName, hasCreatorFeature } = useClient();
   const session = useClientSession();
   const { data: patron } = useFanMe(clientName);
   const isLoggedIn = session.status === "granted" || Boolean(patron);
+  const { data: shop } = useClientShop(clientName);
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-200/80 bg-white/80 backdrop-blur-md">
@@ -33,6 +35,14 @@ export function ClientHeader() {
               Home
             </Button>
           </Link>
+          {shop && (
+            <Link href={`/client/${clientName}/shop`}>
+              <Button variant="ghost" size="sm" className="gap-1.5">
+                <ShoppingBag className="w-3.5 h-3.5" />
+                <span>Shop</span>
+              </Button>
+            </Link>
+          )}
           {hasCreatorFeature && (
             <>
               {isLoggedIn ? (
