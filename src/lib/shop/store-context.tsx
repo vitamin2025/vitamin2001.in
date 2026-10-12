@@ -14,6 +14,10 @@ export interface ShopStoreValue {
    * subdomain or vitamin2001.in, `/client/<slug>/shop` when the app is reached without one.
    */
   readonly basePath: string;
+  /** The rest of the client's site (its home page), e.g. `/` or `/client/<slug>`. */
+  readonly siteRoot: string;
+  /** Where the client's sign-in pages live: `<userRoot>/login`, `<userRoot>/account`. */
+  readonly userRoot: string;
 }
 
 const ShopStoreContext = createContext<ShopStoreValue | null>(null);
@@ -34,7 +38,7 @@ export function useShopStore(): ShopStoreValue {
   return value;
 }
 
-/** Builds a link inside the shop, e.g. `shopHref(base, "/products/d3")`. */
-export function shopHref(basePath: string, path = ""): string {
-  return `${basePath}${path}`;
+/** The sign-in page, coming back to `returnTo` (a path on this site) afterwards. */
+export function loginHref(userRoot: string, returnTo: string): string {
+  return `${userRoot}/login?redirect=${encodeURIComponent(returnTo)}`;
 }

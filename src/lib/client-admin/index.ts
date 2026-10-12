@@ -42,7 +42,7 @@ export type {
   ClientMembersResult,
 } from "./members";
 
-export { useClientSettings, useClientSettingsCommands } from "./settings";
+export { useClientSettings, useClientSettingsCommands, shopAccentColor } from "./settings";
 export type { ClientOrgSettings } from "./settings";
 
 export { useClientBilling, useClientInvoices } from "./billing";

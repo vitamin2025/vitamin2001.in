@@ -3,6 +3,7 @@ import { QueryProvider } from "@/providers/query-provider";
 import "./globals.css";
 // Client-specific theme CSS imports
 import "@/styles/clients/runachan/theme.css";
+import "@/styles/shop.css";
 
 export const metadata: Metadata = {
   title: "vitamin2001.in | IT Services & Software Development",

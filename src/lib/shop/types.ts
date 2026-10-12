@@ -15,6 +15,8 @@ export interface Seller {
   readonly description: string | null;
   readonly logo: string | null;
   readonly banner: string | null;
+  /** The storefront's accent colour, `#rrggbb`, set in the client admin. Missing from older APIs. */
+  readonly accentColor?: string | null;
   readonly isHouseShop: boolean;
 }
 
@@ -292,6 +294,14 @@ export interface Invoice {
   readonly url: string;
 }
 
+/** A seller's shipment of a paid order, from the shop's shipping updates. */
+export interface Shipment {
+  readonly seller: { slug: string; name: string } | null;
+  readonly status: "shipped" | "delivered";
+  readonly trackingCodes: readonly string[];
+  readonly updatedAt: string;
+}
+
 export interface OrderStatus {
   readonly code: string;
   readonly store: { slug: string; name: string };
@@ -303,6 +313,8 @@ export interface OrderStatus {
   };
   readonly order: OrderSnapshot | null;
   readonly invoice: Invoice | null;
+  /** Shipping updates so far, newest first. Missing from APIs older than this field. */
+  readonly shipments?: readonly Shipment[];
 }
 
 export interface MyOrderSummary {
@@ -335,7 +347,9 @@ export interface Fulfillment {
   readonly createdAt: string;
 }
 
-export interface MyOrder extends Omit<Cart, "checkout"> {
+export interface MyOrder extends Omit<Cart, "checkout" | "code" | "state"> {
+  readonly code: string;
+  readonly state: string;
   readonly placedAt: string;
   readonly invoice: Invoice | null;
   readonly fulfillments: readonly Fulfillment[];

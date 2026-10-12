@@ -2,17 +2,19 @@ import type { Address, PriceRange } from "./types";
 
 const formatters = new Map<string, Intl.NumberFormat>();
 
-/** Paise to a price, e.g. 59000 → "₹590". Whole rupees drop the decimals. */
+/** Paise to a price: 59000 → "₹590", 26910 → "₹269.10". Whole rupees drop the decimals. */
 export function formatMoney(minor: number, currency = "INR"): string {
-  let formatter = formatters.get(currency);
+  const digits = minor % 100 === 0 ? 0 : 2;
+  const key = `${currency}:${digits}`;
+  let formatter = formatters.get(key);
   if (!formatter) {
     formatter = new Intl.NumberFormat("en-IN", {
       style: "currency",
       currency,
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 2,
+      minimumFractionDigits: digits,
+      maximumFractionDigits: digits,
     });
-    formatters.set(currency, formatter);
+    formatters.set(key, formatter);
   }
   return formatter.format(minor / 100);
 }
@@ -42,4 +44,31 @@ export function addressLines(address: Address): string[] {
     [address.city, address.province, address.postalCode].filter(Boolean).join(", "),
     address.phoneNumber,
   ].filter((line): line is string => Boolean(line));
+}
+
+const ORDER_STATES: Record<string, string> = {
+  ArrangingPayment: "Awaiting payment",
+  PaymentAuthorized: "Payment received",
+  PaymentSettled: "Confirmed",
+  PartiallyShipped: "Partly shipped",
+  Shipped: "Shipped",
+  PartiallyDelivered: "Partly delivered",
+  Delivered: "Delivered",
+  Cancelled: "Cancelled",
+  Modifying: "Being updated",
+  ArrangingAdditionalPayment: "Awaiting payment",
+};
+
+/** A shopper-facing name for a shop order state, e.g. `PaymentSettled` → "Confirmed". */
+export function orderStateLabel(state: string): string {
+  return ORDER_STATES[state] ?? state.replace(/([a-z])([A-Z])/g, "$1 $2");
+}
+
+/** How to colour an order state. */
+export function orderStateTone(state: string): "positive" | "neutral" | "negative" {
+  if (state === "Cancelled") return "negative";
+  if (state === "Delivered" || state === "Shipped" || state === "PartiallyShipped" || state === "PartiallyDelivered") {
+    return "positive";
+  }
+  return "neutral";
 }

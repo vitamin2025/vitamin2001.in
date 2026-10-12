@@ -272,7 +272,7 @@ export function useSaveAddress() {
   const { seller } = useShopStore();
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, ...input }: SavedAddressInput & { id?: string }) =>
+    mutationFn: ({ id, ...input }: (SavedAddressInput & { id?: undefined }) | (Partial<SavedAddressInput> & { id: string })) =>
       shopFetch<SavedAddress>(
         `${storePrefix(seller)}/me/addresses${id ? `/${encodeURIComponent(id)}` : ""}`,
         { method: id ? "PATCH" : "POST", body: input },

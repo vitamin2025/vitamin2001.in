@@ -74,6 +74,7 @@ export function useClientSettings(): DetailResult<ClientOrgSettings> {
 
 export function useClientSettingsCommands(): {
   readonly update: ClientCommand<{ name: string; logoUrl: string }>;
+  readonly updateShopAccent: ClientCommand<{ color: string | null }>;
 } {
   const actor = useActor();
   const slug = useClientDashboard().organization.slug;
@@ -95,5 +96,25 @@ export function useClientSettingsCommands(): {
     toast: () => "Organization settings saved",
   });
 
-  return { update };
+  const updateShopAccent = useClientAdminCommand<{ color: string | null }>({
+    fields: ["shopAccentColor"],
+    send: async ({ color }) => {
+      await orgRequest({
+        method: "PATCH",
+        path: "/admin/settings",
+        body: { shopAccentColor: color },
+        parse: parseSettings,
+      });
+    },
+    effect: () => ({ on: "settings.changed", actorId: actor.id, slug }),
+    toast: ({ color }) => (color ? "Shop colour saved" : "Shop colour reset to the default"),
+  });
+
+  return { update, updateShopAccent };
+}
+
+/** The shop storefront's accent colour saved in the organization's metadata, or null. */
+export function shopAccentColor(settings: ClientOrgSettings): string | null {
+  const value = settings.metadata.shopAccentColor;
+  return typeof value === "string" && /^#[0-9a-f]{6}$/i.test(value) ? value : null;
 }
