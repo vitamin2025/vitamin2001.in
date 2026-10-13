@@ -18,7 +18,7 @@ import {
 import { useClient } from "@/providers/client-provider";
 import { useClientAdminAuthCommands, useClientSession } from "@/lib/client-admin";
 import type { Actor } from "@/lib/admin/identity";
-import { clientUserRoutes } from "@/lib/client-admin/routes";
+import { clientUserRoutes, safeRedirectPath } from "@/lib/client-admin/routes";
 import { useUpdateProfile } from "@/lib/client-admin/profile";
 import { useClientShop } from "@/lib/shop/client-shop";
 import { LoadingSpinner } from "@/components/common/loading-spinner";
@@ -26,13 +26,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-
-/** Only same-site paths are followed back, so `?back=` can't send people elsewhere. */
-function safeBackPath(raw: string | string[] | undefined): string | null {
-  const value = Array.isArray(raw) ? raw[0] : raw;
-  if (!value || !value.startsWith("/") || value.startsWith("//") || value.startsWith("/\\")) return null;
-  return value;
-}
 
 function Notice({ tone, children }: { tone: "error" | "success"; children: React.ReactNode }) {
   const Icon = tone === "error" ? AlertCircle : CheckCircle2;
@@ -307,7 +300,7 @@ export default function ProfilePage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { client_name: slug } = use(params);
-  const back = safeBackPath(use(searchParams).back);
+  const back = safeRedirectPath(use(searchParams).back);
   const router = useRouter();
   const { client, hasCreatorFeature } = useClient();
   const session = useClientSession();

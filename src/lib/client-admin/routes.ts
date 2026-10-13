@@ -50,3 +50,12 @@ export const clientUserRoutes = {
   membership: (slug: string) =>
     `/client/${encodeURIComponent(slug)}/public/membership`,
 };
+
+/**
+ * A `?redirect=` / `?back=` value that is safe to follow: a path on this site, never another host.
+ */
+export function safeRedirectPath(raw: string | string[] | undefined | null): string | null {
+  const value = Array.isArray(raw) ? raw[0] : raw;
+  if (!value || !value.startsWith("/") || value.startsWith("//") || value.startsWith("/\\")) return null;
+  return value;
+}

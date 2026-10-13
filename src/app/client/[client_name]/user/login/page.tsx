@@ -1,10 +1,10 @@
 import { Suspense } from "react";
 import { getClientConfigOrFallback } from "@/config/clients";
-import { FanLoginView } from "@/components/client-admin";
+import { AccountAuthView } from "@/components/client-admin";
 import { LoadingSpinner } from "@/components/common/loading-spinner";
 import type { ClientPageProps } from "@/types/client";
 
-export default async function FanLoginPage({
+export default async function LoginPage({
   params,
   searchParams,
 }: ClientPageProps) {
@@ -25,12 +25,7 @@ export default async function FanLoginPage({
         </div>
       }
     >
-      <FanLoginView
-        slug={client_name}
-        displayName={client.name}
-        tagline={client.tagline}
-        redirectTarget={redirectTarget}
-      />
+      <AccountAuthView slug={client_name} displayName={client.name} redirectTarget={redirectTarget} />
     </Suspense>
   );
 }

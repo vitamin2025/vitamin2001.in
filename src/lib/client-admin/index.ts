@@ -1,4 +1,4 @@
-export { clientAdminRoutes, clientUserRoutes } from "./routes";
+export { clientAdminRoutes, clientUserRoutes, safeRedirectPath } from "./routes";
 export {
   DEFAULT_CLIENT_FEATURES,
   humanizeFeatureKey,
