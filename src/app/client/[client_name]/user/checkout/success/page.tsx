@@ -75,7 +75,7 @@ function SuccessContent({ slug }: { slug: string }) {
           <ArrowRight className="h-3.5 w-3.5" />
         </Link>
         <Link
-          href={`/client/${encodeURIComponent(slug)}/user/account`}
+          href={`/client/${encodeURIComponent(slug)}/user/creator`}
           className="w-full py-2.5 rounded-xl text-xs font-semibold border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition-colors"
         >
           View Account Details

@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { useClient } from "@/providers/client-provider";
-import { useClientSession } from "@/lib/client-admin";
+import { clientUserRoutes, useClientSession } from "@/lib/client-admin";
 import { useFanMe } from "@/lib/client-admin/creator";
 import { useClientShop } from "@/lib/shop/client-shop";
 import { Button } from "@/components/ui/button";
@@ -43,10 +43,10 @@ export function ClientHeader() {
               </Button>
             </Link>
           )}
-          {hasCreatorFeature && (
+          {(hasCreatorFeature || shop) && (
             <>
               {isLoggedIn ? (
-                <Link href={`/client/${clientName}/user/account`}>
+                <Link href={clientUserRoutes.profile(clientName)}>
                   <Button variant="outline" size="sm" className="gap-1.5 border-slate-300">
                     <User className="w-3.5 h-3.5 text-indigo-600" />
                     <span>My Account</span>

@@ -258,7 +258,7 @@ function CheckoutContent({ slug }: { slug: string }) {
                   Go to Feed
                 </Button>
               </Link>
-              <Link href={`/client/${encodeURIComponent(slug)}/user/account`}>
+              <Link href={`/client/${encodeURIComponent(slug)}/user/creator`}>
                 <Button size="sm" variant="outline" className="text-xs">
                   View Account
                 </Button>

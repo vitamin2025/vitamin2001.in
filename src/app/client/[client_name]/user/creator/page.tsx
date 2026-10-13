@@ -1,0 +1,353 @@
+"use client";
+
+import React, { useState, use } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import {
+  useFanCancel,
+  useFanMe,
+  usePublicCreatorProfile,
+} from "@/lib/client-admin/creator";
+import { useClientSession, useClientAdminAuthCommands } from "@/lib/client-admin";
+import { clientUserRoutes } from "@/lib/client-admin/routes";
+import { LoadingSpinner } from "@/components/common/loading-spinner";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
+import { Dialog } from "@/components/ui/dialog";
+import {
+  UserRound,
+  Sparkles,
+  AlertTriangle,
+  ArrowLeft,
+  CheckCircle2,
+  LogOut,
+  Layers,
+} from "lucide-react";
+
+const _accountFields = [
+  "tierName",
+  "currentPeriodEnd",
+  "status",
+  "cancelSubscription",
+];
+
+export default function CreatorAccountPage({
+  params,
+}: {
+  params: Promise<{ client_name: string }>;
+}) {
+  const { client_name: slug } = use(params);
+  const router = useRouter();
+
+  const session = useClientSession();
+  const { signOut } = useClientAdminAuthCommands();
+  const { data: profile } = usePublicCreatorProfile(slug);
+  const { data: patron, isLoading, refetch } = useFanMe(slug);
+  const cancelSubscription = useFanCancel(slug);
+
+  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
+  const [cancelSuccess, setCancelSuccess] = useState(false);
+  const [isCanceling, setIsCanceling] = useState(false);
+
+  const creatorName = profile?.name || slug;
+
+  const handleCancelSubscription = async () => {
+    setIsCanceling(true);
+    try {
+      await cancelSubscription.mutateAsync();
+      setCancelSuccess(true);
+      await refetch();
+    } catch {
+      // Non-fatal or caught
+    } finally {
+      setIsCanceling(false);
+    }
+  };
+
+  const handleSignOut = async () => {
+    await signOut.run();
+    router.replace(`/client/${encodeURIComponent(slug)}`);
+  };
+
+  if (session.status === "checking" || isLoading) {
+    return (
+      <div className="flex min-h-[70vh] items-center justify-center">
+        <LoadingSpinner text="Loading your account..." />
+      </div>
+    );
+  }
+
+  const tierName =
+    patron?.tier?.name ||
+    patron?.tierName ||
+    (patron && patron.tierRank > 0
+      ? `Tier ${patron.tierRank}`
+      : patron
+      ? "Free Member"
+      : "Not Subscribed");
+
+  const status = patron?.status || "active";
+
+  const currentPeriodEnd = patron?.currentPeriodEnd
+    ? new Date(patron.currentPeriodEnd).toLocaleDateString(undefined, {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      })
+    : "Ongoing (Free Access)";
+
+  return (
+    <div className="min-h-screen bg-slate-50 text-slate-900 pb-20">
+      {/* Navigation Header */}
+      <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 flex h-16 items-center justify-between">
+          <Link
+            href={`/client/${encodeURIComponent(slug)}/user/feed`}
+            className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-slate-900 transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <span>Back to Feed</span>
+          </Link>
+
+          <div className="flex items-center gap-1">
+            <Link href={clientUserRoutes.profile(slug)}>
+              <Button variant="ghost" size="sm" className="text-xs text-slate-600 gap-1.5">
+                <UserRound className="h-3.5 w-3.5" />
+                <span>Profile</span>
+              </Button>
+            </Link>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleSignOut}
+              className="text-xs text-slate-600 gap-1.5"
+            >
+              <LogOut className="h-3.5 w-3.5" />
+              <span>Sign out</span>
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Container */}
+      <main className="max-w-3xl mx-auto px-4 sm:px-6 pt-10 space-y-8">
+        <div>
+          <h1 className="text-2xl font-extrabold text-slate-900">
+            Creator Membership
+          </h1>
+          <p className="text-xs text-slate-500 mt-1">
+            Manage your subscription to {creatorName}&apos;s community.
+          </p>
+        </div>
+
+        {/* Profile summary: details are edited on the shared profile page */}
+        <Card className="shadow-2xs border-slate-200">
+          <CardContent className="flex items-center justify-between gap-4 py-4 text-sm">
+            <div className="min-w-0">
+              <p className="font-medium text-slate-900 truncate">
+                {session.status === "granted" ? session.actor.name || "Subscriber" : "Anonymous"}
+              </p>
+              <p className="text-xs text-slate-500 truncate">
+                {session.status === "granted" ? session.actor.email : "—"}
+              </p>
+            </div>
+            <Link href={clientUserRoutes.profile(slug)}>
+              <Button variant="outline" size="sm" className="text-xs gap-1.5 shrink-0">
+                <UserRound className="h-3.5 w-3.5" />
+                <span>Edit profile</span>
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+
+        {/* Status Alerts */}
+        {patron?.cancelAtPeriodEnd && (
+          <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs flex items-start gap-3">
+            <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5 text-amber-600" />
+            <div className="space-y-1">
+              <p className="font-bold">Cancellation Scheduled</p>
+              <p className="leading-relaxed text-amber-700">
+                Your subscription has been cancelled and will not renew. You retain full tier access until <strong className="font-semibold">{currentPeriodEnd}</strong>.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {status === "expired" && (
+          <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs flex items-start justify-between gap-3">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5 text-red-600" />
+              <div className="space-y-1">
+                <p className="font-bold">Membership Expired</p>
+                <p className="leading-relaxed text-red-700">
+                  Your previous tier subscription has expired. Renew now to restore exclusive content and direct messaging access.
+                </p>
+              </div>
+            </div>
+            <Link href={`/client/${encodeURIComponent(slug)}/public/membership`}>
+              <Button size="sm" className="text-xs bg-red-600 hover:bg-red-700 text-white shrink-0">
+                Renew Plan
+              </Button>
+            </Link>
+          </div>
+        )}
+
+        {/* Membership Details Card */}
+        <Card className="shadow-2xs border-slate-200">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base font-bold flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-amber-600" />
+                <span>Current Membership</span>
+              </CardTitle>
+              <Badge
+                variant="secondary"
+                className={
+                  status === "active"
+                    ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                    : status === "expired"
+                    ? "bg-red-50 text-red-700 border-red-200"
+                    : "bg-slate-100 text-slate-600"
+                }
+              >
+                {status.toUpperCase()}
+              </Badge>
+            </div>
+            <CardDescription className="text-xs">
+              Your tier entitlements and subscription renewal status.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 rounded-xl bg-slate-50 border border-slate-200">
+              <div>
+                <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                  Tier Name
+                </p>
+                <p className="text-base font-bold text-slate-900 mt-0.5">{tierName}</p>
+              </div>
+              <div>
+                <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                  Status
+                </p>
+                <p className="text-base font-bold text-slate-900 mt-0.5 capitalize">
+                  {status}
+                </p>
+              </div>
+              <div>
+                <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                  Billing Period End
+                </p>
+                <p className="text-base font-bold text-slate-900 mt-0.5">
+                  {currentPeriodEnd}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
+              <div className="flex items-center gap-2">
+                <Link href={`/client/${encodeURIComponent(slug)}/public/membership`}>
+                  <Button variant="outline" size="sm" className="text-xs gap-1.5 border-indigo-200 text-indigo-700 hover:bg-indigo-50">
+                    <Layers className="h-3.5 w-3.5" />
+                    <span>Browse All Tiers</span>
+                  </Button>
+                </Link>
+
+                {patron && Number(patron.tierRank) > 0 && status === "active" && !patron.cancelAtPeriodEnd && (
+                  <Link href={`/client/${encodeURIComponent(slug)}/public/membership`}>
+                    <Button size="sm" className="text-xs gap-1.5 bg-indigo-600 hover:bg-indigo-500 text-white">
+                      <Sparkles className="h-3.5 w-3.5" />
+                      <span>Upgrade Tier</span>
+                    </Button>
+                  </Link>
+                )}
+              </div>
+
+              {patron && Number(patron.tierRank) > 0 && status === "active" && !patron.cancelAtPeriodEnd && (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => setIsCancelDialogOpen(true)}
+                  className="text-xs bg-red-600 hover:bg-red-700"
+                  name="cancelSubscription"
+                >
+                  Cancel Membership
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Cancellation Confirmation Dialog */}
+        <Dialog
+          open={isCancelDialogOpen}
+          onClose={() => setIsCancelDialogOpen(false)}
+          title="Cancel Membership Subscription?"
+          footer={
+            cancelSuccess ? (
+              <Button
+                size="sm"
+                onClick={() => {
+                  setIsCancelDialogOpen(false);
+                  setCancelSuccess(false);
+                }}
+                className="text-xs"
+              >
+                Close
+              </Button>
+            ) : (
+              <div className="flex justify-end gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsCancelDialogOpen(false)}
+                  className="text-xs"
+                  disabled={isCanceling}
+                >
+                  Keep Membership
+                </Button>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={handleCancelSubscription}
+                  className="text-xs bg-red-600 hover:bg-red-700"
+                  disabled={isCanceling}
+                >
+                  {isCanceling ? "Canceling..." : "Confirm Cancellation"}
+                </Button>
+              </div>
+            )
+          }
+        >
+          {cancelSuccess ? (
+            <div className="py-4 text-center space-y-2">
+              <CheckCircle2 className="h-8 w-8 text-emerald-600 mx-auto" />
+              <p className="text-sm font-semibold text-slate-900">
+                Subscription successfully updated.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <div className="flex items-center gap-3 text-red-600">
+                <AlertTriangle className="h-5 w-5 shrink-0" />
+                <p className="font-semibold text-sm text-slate-900">
+                  Are you sure you want to cancel?
+                </p>
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                You will retain full access until the end of your billing cycle. After that, your account will revert to free follower status.
+              </p>
+            </div>
+          )}
+        </Dialog>
+      </main>
+    </div>
+  );
+}

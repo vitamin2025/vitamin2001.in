@@ -121,7 +121,7 @@ export function CreatorLandingView({ slug }: CreatorLandingViewProps) {
                   </span>
                 )}
                 <Link
-                  href={`/client/${encodeURIComponent(slug)}/user/account`}
+                  href={`/client/${encodeURIComponent(slug)}/user/creator`}
                   className="inline-flex items-center gap-1.5 rounded-xl bg-white/90 backdrop-blur-md px-3.5 py-2 text-xs font-semibold text-slate-800 shadow-md hover:bg-white transition-colors"
                 >
                   <User className="h-3.5 w-3.5" /> My Account

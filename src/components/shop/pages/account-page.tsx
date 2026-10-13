@@ -318,7 +318,7 @@ export function AccountPage({ tab }: { tab: AccountTab }) {
         </div>
         <div className="flex items-center gap-2">
           <Link
-            href={`${userRoot}/account`}
+            href={`${userRoot}/account?back=${encodeURIComponent(`${basePath}/account`)}`}
             className="inline-flex h-9 items-center gap-1.5 rounded-full border border-slate-300 px-3.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
           >
             <UserRound className="h-4 w-4" /> Profile

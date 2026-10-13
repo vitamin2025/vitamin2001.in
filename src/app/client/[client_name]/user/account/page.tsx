@@ -1,127 +1,377 @@
 "use client";
 
-import React, { useState, use } from "react";
+import React, { use, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  useFanCancel,
-  useFanMe,
-  usePublicCreatorProfile,
-} from "@/lib/client-admin/creator";
-import { useClientSession, useClientAdminAuthCommands } from "@/lib/client-admin";
+  AlertCircle,
+  ArrowLeft,
+  BadgeCheck,
+  CheckCircle2,
+  ChevronRight,
+  KeyRound,
+  LogOut,
+  ShoppingBag,
+  Sparkles,
+  UserRound,
+} from "lucide-react";
+import { useClient } from "@/providers/client-provider";
+import { useClientAdminAuthCommands, useClientSession } from "@/lib/client-admin";
+import type { Actor } from "@/lib/admin/identity";
+import { clientUserRoutes } from "@/lib/client-admin/routes";
+import { useUpdateProfile } from "@/lib/client-admin/profile";
+import { useClientShop } from "@/lib/shop/client-shop";
 import { LoadingSpinner } from "@/components/common/loading-spinner";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
-import { Dialog } from "@/components/ui/dialog";
-import {
-  User,
-  Sparkles,
-  Calendar,
-  AlertTriangle,
-  ArrowLeft,
-  CheckCircle2,
-  LogOut,
-  Shield,
-  Layers,
-} from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
-const _accountFields = [
-  "tierName",
-  "currentPeriodEnd",
-  "status",
-  "cancelSubscription",
-];
+/** Only same-site paths are followed back, so `?back=` can't send people elsewhere. */
+function safeBackPath(raw: string | string[] | undefined): string | null {
+  const value = Array.isArray(raw) ? raw[0] : raw;
+  if (!value || !value.startsWith("/") || value.startsWith("//") || value.startsWith("/\\")) return null;
+  return value;
+}
 
-export default function FanAccountPage({
-  params,
-}: {
-  params: Promise<{ client_name: string }>;
-}) {
-  const { client_name: slug } = use(params);
-  const router = useRouter();
+function Notice({ tone, children }: { tone: "error" | "success"; children: React.ReactNode }) {
+  const Icon = tone === "error" ? AlertCircle : CheckCircle2;
+  return (
+    <div
+      className={
+        tone === "error"
+          ? "flex items-center gap-2 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-medium"
+          : "flex items-center gap-2 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium"
+      }
+    >
+      <Icon className="h-4 w-4 shrink-0" />
+      <span>{children}</span>
+    </div>
+  );
+}
 
-  const session = useClientSession();
-  const { signOut } = useClientAdminAuthCommands();
-  const { data: profile } = usePublicCreatorProfile(slug);
-  const { data: patron, isLoading, refetch } = useFanMe(slug);
-  const cancelSubscription = useFanCancel(slug);
+function Avatar({ name, imageUrl }: { name: string; imageUrl: string | null }) {
+  const [failed, setFailed] = useState(false);
+  const initials =
+    name
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase())
+      .join("") || "?";
+  if (imageUrl && !failed) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element -- user-supplied URL on any host
+      <img
+        src={imageUrl}
+        alt=""
+        onError={() => setFailed(true)}
+        className="h-16 w-16 rounded-full object-cover ring-2 ring-white shadow-sm"
+      />
+    );
+  }
+  return (
+    <div className="h-16 w-16 rounded-full bg-indigo-600 text-white flex items-center justify-center text-lg font-bold ring-2 ring-white shadow-sm">
+      {initials}
+    </div>
+  );
+}
 
-  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
-  const [cancelSuccess, setCancelSuccess] = useState(false);
-  const [isCanceling, setIsCanceling] = useState(false);
+function ProfileForm({ actor }: { actor: Actor }) {
+  const update = useUpdateProfile();
+  const [name, setName] = useState(actor.name);
+  const [image, setImage] = useState(actor.imageUrl ?? "");
+  const [clientError, setClientError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
 
-  const creatorName = profile?.name || slug;
+  const dirty = name.trim() !== actor.name || image.trim() !== (actor.imageUrl ?? "");
 
-  const handleCancelSubscription = async () => {
-    setIsCanceling(true);
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setClientError(null);
+    setSaved(false);
+    const trimmedName = name.trim();
+    const trimmedImage = image.trim();
+    if (!trimmedName) {
+      setClientError("Please enter your name.");
+      return;
+    }
+    if (trimmedImage && !/^https?:\/\//i.test(trimmedImage)) {
+      setClientError("The photo must be a web address starting with http:// or https://.");
+      return;
+    }
     try {
-      await cancelSubscription.mutateAsync();
-      setCancelSuccess(true);
-      await refetch();
+      await update.run({ name: trimmedName, image: trimmedImage });
+      setSaved(true);
     } catch {
-      // Non-fatal or caught
-    } finally {
-      setIsCanceling(false);
+      // Shown from the command state
     }
   };
 
-  const handleSignOut = async () => {
-    await signOut.run();
-    router.replace(`/client/${encodeURIComponent(slug)}`);
+  const serverError =
+    update.state.status === "failed" ? update.state.error.message || "Could not save your profile." : null;
+
+  return (
+    <form className="space-y-4" onSubmit={handleSubmit}>
+      <div className="space-y-1.5">
+        <Label htmlFor="profile-name" className="text-xs text-slate-600">
+          Full name
+        </Label>
+        <Input
+          id="profile-name"
+          name="name"
+          value={name}
+          onChange={(e) => {
+            setName(e.target.value);
+            setSaved(false);
+          }}
+          autoComplete="name"
+          required
+        />
+      </div>
+
+      <div className="space-y-1.5">
+        <Label htmlFor="profile-email" className="text-xs text-slate-600">
+          Email
+        </Label>
+        <Input id="profile-email" value={actor.email} disabled readOnly />
+        <p className="text-[11px] text-slate-400">Your email is your sign-in and can&apos;t be changed here.</p>
+      </div>
+
+      <div className="space-y-1.5">
+        <Label htmlFor="profile-image" className="text-xs text-slate-600">
+          Photo URL
+        </Label>
+        <Input
+          id="profile-image"
+          name="image"
+          type="url"
+          value={image}
+          onChange={(e) => {
+            setImage(e.target.value);
+            setSaved(false);
+          }}
+          placeholder="https://…"
+        />
+        <p className="text-[11px] text-slate-400">Leave empty to show your initials.</p>
+      </div>
+
+      {clientError && <Notice tone="error">{clientError}</Notice>}
+      {serverError && <Notice tone="error">{serverError}</Notice>}
+      {saved && !dirty && <Notice tone="success">Your profile has been saved.</Notice>}
+
+      <Button
+        type="submit"
+        disabled={!dirty || update.state.status === "running"}
+        className="text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white"
+      >
+        {update.state.status === "running" ? "Saving..." : "Save changes"}
+      </Button>
+    </form>
+  );
+}
+
+function PasswordForm() {
+  const { changePassword } = useClientAdminAuthCommands();
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [clientError, setClientError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setClientError(null);
+    setSaved(false);
+    if (newPassword.length < 8) {
+      setClientError("New password must be at least 8 characters long.");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setClientError("The new passwords don't match.");
+      return;
+    }
+    try {
+      await changePassword.run({ currentPassword, newPassword });
+      setSaved(true);
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch {
+      // Shown from the command state
+    }
   };
 
-  if (session.status === "checking" || isLoading) {
+  const serverError =
+    changePassword.state.status === "failed"
+      ? changePassword.state.error.message || "Could not change your password. Please check your current password."
+      : null;
+
+  return (
+    <form className="space-y-4" onSubmit={handleSubmit}>
+      <div className="space-y-1.5">
+        <Label htmlFor="current-password" className="text-xs text-slate-600">
+          Current password
+        </Label>
+        <Input
+          id="current-password"
+          type="password"
+          value={currentPassword}
+          onChange={(e) => setCurrentPassword(e.target.value)}
+          autoComplete="current-password"
+          required
+        />
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="space-y-1.5">
+          <Label htmlFor="new-password" className="text-xs text-slate-600">
+            New password
+          </Label>
+          <Input
+            id="new-password"
+            type="password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            placeholder="At least 8 characters"
+            autoComplete="new-password"
+            minLength={8}
+            required
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="confirm-password" className="text-xs text-slate-600">
+            Confirm new password
+          </Label>
+          <Input
+            id="confirm-password"
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            autoComplete="new-password"
+            minLength={8}
+            required
+          />
+        </div>
+      </div>
+
+      {clientError && <Notice tone="error">{clientError}</Notice>}
+      {serverError && <Notice tone="error">{serverError}</Notice>}
+      {saved && <Notice tone="success">Your password has been changed.</Notice>}
+
+      <Button type="submit" variant="outline" disabled={changePassword.state.status === "running"} className="text-xs font-semibold">
+        {changePassword.state.status === "running" ? "Changing..." : "Change password"}
+      </Button>
+    </form>
+  );
+}
+
+function SpaceLink({
+  href,
+  icon: Icon,
+  title,
+  description,
+}: {
+  href: string;
+  icon: typeof ShoppingBag;
+  title: string;
+  description: string;
+}) {
+  return (
+    <li>
+      <Link
+        href={href}
+        className="group flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 transition hover:border-slate-300 hover:shadow-sm"
+      >
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-700">
+          <Icon className="h-4 w-4" />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-sm font-semibold text-slate-900">{title}</span>
+          <span className="block text-xs text-slate-500">{description}</span>
+        </span>
+        <ChevronRight className="h-4 w-4 text-slate-400 transition group-hover:translate-x-0.5" />
+      </Link>
+    </li>
+  );
+}
+
+/**
+ * The signed-in user's own profile, shared by every feature: the shop, creator memberships and
+ * (later) the feed link here to view and edit name, photo and password.
+ */
+export default function ProfilePage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ client_name: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const { client_name: slug } = use(params);
+  const back = safeBackPath(use(searchParams).back);
+  const router = useRouter();
+  const { client, hasCreatorFeature } = useClient();
+  const session = useClientSession();
+  const { signOut } = useClientAdminAuthCommands();
+  const { data: shop } = useClientShop(slug);
+
+  const homeHref = `/client/${encodeURIComponent(slug)}`;
+  const backHref = back ?? homeHref;
+
+  if (session.status === "checking") {
     return (
       <div className="flex min-h-[70vh] items-center justify-center">
-        <LoadingSpinner text="Loading your account..." />
+        <LoadingSpinner text="Loading your profile..." />
       </div>
     );
   }
 
-  const tierName =
-    patron?.tier?.name ||
-    patron?.tierName ||
-    (patron && patron.tierRank > 0
-      ? `Tier ${patron.tierRank}`
-      : patron
-      ? "Free Member"
-      : "Not Subscribed");
+  if (session.status !== "granted") {
+    const returnTo = `${clientUserRoutes.profile(slug)}${back ? `?back=${encodeURIComponent(back)}` : ""}`;
+    return (
+      <div className="flex min-h-[70vh] items-center justify-center px-4">
+        <Card className="w-full max-w-sm text-center shadow-2xs border-slate-200">
+          <CardHeader>
+            <UserRound className="mx-auto h-8 w-8 text-indigo-600" />
+            <CardTitle className="text-base font-bold">Sign in to see your profile</CardTitle>
+            <CardDescription className="text-xs">
+              {session.status === "unavailable"
+                ? session.error.message
+                : "Your profile is shared across the shop, memberships and feed."}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Link href={`${clientUserRoutes.fanLogin(slug)}?redirect=${encodeURIComponent(returnTo)}`}>
+              <Button className="w-full text-xs bg-indigo-600 hover:bg-indigo-500 text-white">Sign in</Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
-  const status = patron?.status || "active";
+  const { actor } = session;
 
-  const currentPeriodEnd = patron?.currentPeriodEnd
-    ? new Date(patron.currentPeriodEnd).toLocaleDateString(undefined, {
-        month: "long",
-        day: "numeric",
-        year: "numeric",
-      })
-    : "Ongoing (Free Access)";
+  const handleSignOut = async () => {
+    await signOut.run();
+    router.replace(homeHref);
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 pb-20">
-      {/* Navigation Header */}
       <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 flex h-16 items-center justify-between">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 flex h-16 items-center justify-between">
           <Link
-            href={`/client/${encodeURIComponent(slug)}/user/feed`}
+            href={backHref}
             className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-slate-900 transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
-            <span>Back to Feed</span>
+            <span>{back ? "Back" : `Back to ${client?.name || slug}`}</span>
           </Link>
-
           <Button
             variant="ghost"
             size="sm"
             onClick={handleSignOut}
+            disabled={signOut.state.status === "running"}
             className="text-xs text-slate-600 gap-1.5"
           >
             <LogOut className="h-3.5 w-3.5" />
@@ -130,223 +380,73 @@ export default function FanAccountPage({
         </div>
       </header>
 
-      {/* Main Container */}
       <main className="max-w-3xl mx-auto px-4 sm:px-6 pt-10 space-y-8">
-        <div>
-          <h1 className="text-2xl font-extrabold text-slate-900">
-            Account & Membership
-          </h1>
-          <p className="text-xs text-slate-500 mt-1">
-            Manage your subscription and profile for {creatorName}&apos;s community.
-          </p>
+        <div className="flex items-center gap-4">
+          <Avatar key={actor.imageUrl ?? ""} name={actor.name || actor.email} imageUrl={actor.imageUrl} />
+          <div className="min-w-0">
+            <h1 className="text-2xl font-extrabold text-slate-900 truncate">{actor.name || "Your profile"}</h1>
+            <p className="mt-0.5 flex items-center gap-1.5 text-xs text-slate-500">
+              <span className="truncate">{actor.email}</span>
+              {actor.emailVerified && (
+                <span className="inline-flex items-center gap-0.5 text-emerald-700">
+                  <BadgeCheck className="h-3.5 w-3.5" /> Verified
+                </span>
+              )}
+            </p>
+          </div>
         </div>
 
-        {/* Profile Card */}
         <Card className="shadow-2xs border-slate-200">
           <CardHeader>
             <CardTitle className="text-base font-bold flex items-center gap-2">
-              <User className="h-4 w-4 text-indigo-600" />
-              <span>User Profile</span>
+              <UserRound className="h-4 w-4 text-indigo-600" />
+              <span>Personal details</span>
             </CardTitle>
             <CardDescription className="text-xs">
-              Authenticated identity on this tenant platform.
+              Shown on your orders, memberships and posts across {client?.name || slug}.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm">
-            <div className="flex justify-between py-2 border-b border-slate-100">
-              <span className="text-slate-500 text-xs">Name</span>
-              <span className="font-medium text-slate-900">
-                {session.status === "granted" ? session.actor.name || "Subscriber" : "Anonymous"}
-              </span>
-            </div>
-            <div className="flex justify-between py-2 border-b border-slate-100">
-              <span className="text-slate-500 text-xs">Email</span>
-              <span className="font-medium text-slate-900">
-                {session.status === "granted" ? session.actor.email : "—"}
-              </span>
-            </div>
+          <CardContent>
+            <ProfileForm key={`${actor.name}|${actor.imageUrl ?? ""}`} actor={actor} />
           </CardContent>
         </Card>
 
-        {/* Status Alerts */}
-        {patron?.cancelAtPeriodEnd && (
-          <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs flex items-start gap-3">
-            <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5 text-amber-600" />
-            <div className="space-y-1">
-              <p className="font-bold">Cancellation Scheduled</p>
-              <p className="leading-relaxed text-amber-700">
-                Your subscription has been cancelled and will not renew. You retain full tier access until <strong className="font-semibold">{currentPeriodEnd}</strong>.
-              </p>
-            </div>
-          </div>
-        )}
-
-        {status === "expired" && (
-          <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs flex items-start justify-between gap-3">
-            <div className="flex items-start gap-3">
-              <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5 text-red-600" />
-              <div className="space-y-1">
-                <p className="font-bold">Membership Expired</p>
-                <p className="leading-relaxed text-red-700">
-                  Your previous tier subscription has expired. Renew now to restore exclusive content and direct messaging access.
-                </p>
-              </div>
-            </div>
-            <Link href={`/client/${encodeURIComponent(slug)}/public/membership`}>
-              <Button size="sm" className="text-xs bg-red-600 hover:bg-red-700 text-white shrink-0">
-                Renew Plan
-              </Button>
-            </Link>
-          </div>
-        )}
-
-        {/* Membership Details Card */}
         <Card className="shadow-2xs border-slate-200">
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base font-bold flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-amber-600" />
-                <span>Current Membership</span>
-              </CardTitle>
-              <Badge
-                variant="secondary"
-                className={
-                  status === "active"
-                    ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                    : status === "expired"
-                    ? "bg-red-50 text-red-700 border-red-200"
-                    : "bg-slate-100 text-slate-600"
-                }
-              >
-                {status.toUpperCase()}
-              </Badge>
-            </div>
-            <CardDescription className="text-xs">
-              Your tier entitlements and subscription renewal status.
-            </CardDescription>
+            <CardTitle className="text-base font-bold flex items-center gap-2">
+              <KeyRound className="h-4 w-4 text-indigo-600" />
+              <span>Password</span>
+            </CardTitle>
+            <CardDescription className="text-xs">Change the password you sign in with.</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 rounded-xl bg-slate-50 border border-slate-200">
-              <div>
-                <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-                  Tier Name
-                </p>
-                <p className="text-base font-bold text-slate-900 mt-0.5">{tierName}</p>
-              </div>
-              <div>
-                <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-                  Status
-                </p>
-                <p className="text-base font-bold text-slate-900 mt-0.5 capitalize">
-                  {status}
-                </p>
-              </div>
-              <div>
-                <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-                  Billing Period End
-                </p>
-                <p className="text-base font-bold text-slate-900 mt-0.5">
-                  {currentPeriodEnd}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
-              <div className="flex items-center gap-2">
-                <Link href={`/client/${encodeURIComponent(slug)}/public/membership`}>
-                  <Button variant="outline" size="sm" className="text-xs gap-1.5 border-indigo-200 text-indigo-700 hover:bg-indigo-50">
-                    <Layers className="h-3.5 w-3.5" />
-                    <span>Browse All Tiers</span>
-                  </Button>
-                </Link>
-
-                {patron && Number(patron.tierRank) > 0 && status === "active" && !patron.cancelAtPeriodEnd && (
-                  <Link href={`/client/${encodeURIComponent(slug)}/public/membership`}>
-                    <Button size="sm" className="text-xs gap-1.5 bg-indigo-600 hover:bg-indigo-500 text-white">
-                      <Sparkles className="h-3.5 w-3.5" />
-                      <span>Upgrade Tier</span>
-                    </Button>
-                  </Link>
-                )}
-              </div>
-
-              {patron && Number(patron.tierRank) > 0 && status === "active" && !patron.cancelAtPeriodEnd && (
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => setIsCancelDialogOpen(true)}
-                  className="text-xs bg-red-600 hover:bg-red-700"
-                  name="cancelSubscription"
-                >
-                  Cancel Membership
-                </Button>
-              )}
-            </div>
+          <CardContent>
+            <PasswordForm />
           </CardContent>
         </Card>
 
-        {/* Cancellation Confirmation Dialog */}
-        <Dialog
-          open={isCancelDialogOpen}
-          onClose={() => setIsCancelDialogOpen(false)}
-          title="Cancel Membership Subscription?"
-          footer={
-            cancelSuccess ? (
-              <Button
-                size="sm"
-                onClick={() => {
-                  setIsCancelDialogOpen(false);
-                  setCancelSuccess(false);
-                }}
-                className="text-xs"
-              >
-                Close
-              </Button>
-            ) : (
-              <div className="flex justify-end gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsCancelDialogOpen(false)}
-                  className="text-xs"
-                  disabled={isCanceling}
-                >
-                  Keep Membership
-                </Button>
-                <Button
-                  type="button"
-                  variant="destructive"
-                  onClick={handleCancelSubscription}
-                  className="text-xs bg-red-600 hover:bg-red-700"
-                  disabled={isCanceling}
-                >
-                  {isCanceling ? "Canceling..." : "Confirm Cancellation"}
-                </Button>
-              </div>
-            )
-          }
-        >
-          {cancelSuccess ? (
-            <div className="py-4 text-center space-y-2">
-              <CheckCircle2 className="h-8 w-8 text-emerald-600 mx-auto" />
-              <p className="text-sm font-semibold text-slate-900">
-                Subscription successfully updated.
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              <div className="flex items-center gap-3 text-red-600">
-                <AlertTriangle className="h-5 w-5 shrink-0" />
-                <p className="font-semibold text-sm text-slate-900">
-                  Are you sure you want to cancel?
-                </p>
-              </div>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                You will retain full access until the end of your billing cycle. After that, your account will revert to free follower status.
-              </p>
-            </div>
-          )}
-        </Dialog>
+        {(shop || hasCreatorFeature) && (
+          <section className="space-y-3">
+            <h2 className="text-sm font-bold text-slate-900">Your accounts</h2>
+            <ul className="space-y-2">
+              {shop && (
+                <SpaceLink
+                  href={`/client/${encodeURIComponent(slug)}/shop/account`}
+                  icon={ShoppingBag}
+                  title="Shop"
+                  description="Orders, deliveries and saved addresses"
+                />
+              )}
+              {hasCreatorFeature && (
+                <SpaceLink
+                  href={clientUserRoutes.creatorAccount(slug)}
+                  icon={Sparkles}
+                  title="Creator membership"
+                  description="Your tier, renewal date and cancellation"
+                />
+              )}
+            </ul>
+          </section>
+        )}
       </main>
     </div>
   );
