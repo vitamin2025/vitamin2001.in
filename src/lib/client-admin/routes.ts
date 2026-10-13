@@ -41,9 +41,21 @@ export const clientUserRoutes = {
   fanFeed: (slug: string) => `/client/${encodeURIComponent(slug)}/user/feed`,
   fanPost: (slug: string, postId: string) =>
     `/client/${encodeURIComponent(slug)}/user/post/${encodeURIComponent(postId)}`,
-  fanAccount: (slug: string) => `/client/${encodeURIComponent(slug)}/user/account`,
+  /** The signed-in user's own profile, shared by every feature (shop, creator, feed). */
+  profile: (slug: string) => `/client/${encodeURIComponent(slug)}/user/account`,
+  /** Creator membership: tier, renewal and cancellation for this client's community. */
+  creatorAccount: (slug: string) => `/client/${encodeURIComponent(slug)}/user/creator`,
   fanJoin: (slug: string) => `/client/${encodeURIComponent(slug)}/user/join`,
   fanMessages: (slug: string) => `/client/${encodeURIComponent(slug)}/user/messages`,
   membership: (slug: string) =>
     `/client/${encodeURIComponent(slug)}/public/membership`,
 };
+
+/**
+ * A `?redirect=` / `?back=` value that is safe to follow: a path on this site, never another host.
+ */
+export function safeRedirectPath(raw: string | string[] | undefined | null): string | null {
+  const value = Array.isArray(raw) ? raw[0] : raw;
+  if (!value || !value.startsWith("/") || value.startsWith("//") || value.startsWith("/\\")) return null;
+  return value;
+}

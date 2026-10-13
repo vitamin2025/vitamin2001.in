@@ -116,7 +116,7 @@ export default function FanFeedPage({
               </Link>
             )}
 
-            <Link href={`/client/${encodeURIComponent(slug)}/user/account`}>
+            <Link href={`/client/${encodeURIComponent(slug)}/user/creator`}>
               <Button size="sm" variant="ghost" className="gap-1.5 text-xs text-slate-600">
                 <User className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline">My Account</span>
